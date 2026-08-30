@@ -10,6 +10,7 @@ Laporan_Pertemuan-[nomor]_[Nama]_[Kelas].pdf
 
 ## Data Mahasiswa
 
+- Mata Kuliah: Konstruksi dan Evaluasi Perangkat Lunak
 - Nama: Hafidz Rizqullah Prasetya
 - Kelas: PL5A1
 
