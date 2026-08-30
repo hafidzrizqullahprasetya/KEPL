@@ -10,7 +10,7 @@ Laporan_Pertemuan-[nomor]_[Nama]_[Kelas].pdf
 
 ## Data Mahasiswa
 
-- Mata Kuliah: Konstruksi dan Evaluasi Perangkat Lunak
+- Mata Kuliah: Konstruksi dan Evaluasi Perangkat Lunak (KEPL)
 - Nama: Hafidz Rizqullah Prasetya
 - Kelas: PL5A1
 
@@ -20,6 +20,18 @@ Untuk laporan Pertemuan 1, nama file yang benar adalah:
 
 ```text
 Laporan_Pertemuan-1_Hafidz-Rizqullah-Prasetya_PL5A1.pdf
+```
+
+Jika nama file perlu mencantumkan singkatan mata kuliah, gunakan format berikut:
+
+```text
+[KEPL]_Laporan_Pertemuan-[nomor]_[Nama]_[Kelas].pdf
+```
+
+Contoh:
+
+```text
+[KEPL]_Laporan_Pertemuan-1_Hafidz-Rizqullah-Prasetya_PL5A1.pdf
 ```
 
 ## Ketentuan Penamaan
