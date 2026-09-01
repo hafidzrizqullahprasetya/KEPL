@@ -1,0 +1,396 @@
+\documentclass[a4paper,oneside,12pt]{report}
+% Package yang diperlukan
+\usepackage{fontspec}       % Font sistem untuk XeLaTeX/LuaLaTeX
+\usepackage{setspace}       % Pengaturan jarak antarbaris
+\usepackage{graphicx}      % Untuk memasukkan gambar
+\usepackage{titling}       % Untuk kustomisasi halaman judul
+\usepackage{geometry}      % Untuk mengatur margin halaman
+\usepackage{listings}      % Untuk menampilkan blok kode
+\usepackage{xcolor}        % Untuk menggunakan warna
+\usepackage{float}         % Untuk kontrol penempatan float (seperti gambar)
+\usepackage{hyperref}      % Untuk membuat hyperlink (URL, referensi)
+\usepackage{indentfirst}   % Untuk memberi indentasi pada paragraf pertama setiap seksi
+\usepackage{url}           % Untuk format URL
+\usepackage{fancyhdr}      % Untuk kustomisasi header dan footer
+\usepackage{tocloft}       % Untuk kustomisasi Daftar Isi
+\usepackage{bookmark}      % Untuk manajemen bookmark PDF yang lebih baik
+
+% Font dan spasi standar laporan praktikum
+\setmainfont{Times New Roman}
+\onehalfspacing
+
+%======================================================================
+% PENGATURAN GEOMETRI HALAMAN
+%======================================================================
+% Margin umum untuk isi laporan
+\geometry{left=3cm, right=2.5cm, top=2cm, bottom=2.5cm}
+\sloppy
+
+%======================================================================
+% PENGATURAN WARNA UNTUK BLOK KODE
+%======================================================================
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{darkblue}{rgb}{0,0,0.6}
+
+%======================================================================
+% PENGATURAN BLOK KODE (LISTINGS)
+%======================================================================
+% Gaya umum untuk semua blok kode
+\lstdefinestyle{commonstyle}{
+    backgroundcolor=\color{backcolour}, 
+    breakatwhitespace=false, 
+    breaklines=true, 
+    captionpos=b, 
+    keepspaces=true,
+    numbers=left, 
+    numbersep=5pt, 
+    showspaces=false, 
+    showstringspaces=false,
+    showtabs=false, 
+    tabsize=2, 
+    frame=single,
+    basicstyle=\ttfamily\footnotesize,
+    numberstyle=\tiny\color{codegray},
+    columns=flexible,
+    postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+    breakindent=0pt,
+    breakautoindent=false
+}
+
+% Gaya khusus untuk HTML
+\lstdefinestyle{htmlstyle}{
+    style=commonstyle,
+    language=HTML,
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{codepurple},
+    stringstyle=\color{codegreen},
+    basicstyle=\ttfamily\scriptsize
+}
+
+% Gaya khusus untuk CSS
+\lstdefinestyle{cssstyle}{
+    style=commonstyle,
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{darkblue},
+    stringstyle=\color{codepurple},
+    emph={color, background, font, margin, padding, border, display, position, width, height},
+    emphstyle=\color{darkblue},
+    basicstyle=\ttfamily\scriptsize
+}
+
+% Gaya khusus untuk Python
+\lstdefinestyle{pythonstyle}{
+    style=commonstyle,
+    language=Python,
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{darkblue},
+    stringstyle=\color{codepurple},
+    emph={import,from,class,def,for,while,if,else,elif,try,except,finally},
+    emphstyle=\color{darkblue}
+}
+
+% Gaya khusus untuk SQL
+\lstdefinestyle{sqlstyle}{
+    style=commonstyle,
+    language=SQL,
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{darkblue},
+    stringstyle=\color{codepurple},
+    emph={SELECT,FROM,WHERE,INSERT,UPDATE,DELETE,CREATE,DROP},
+    emphstyle=\color{darkblue}
+}
+
+% Gaya khusus untuk JavaScript
+\lstdefinestyle{javascriptstyle}{
+    style=commonstyle,
+    language=JavaScript,
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{darkblue},
+    stringstyle=\color{codepurple},
+    emph={function,var,let,const,return,if,for,while,do,else,switch,case},
+    emphstyle=\color{darkblue}
+}
+
+%======================================================================
+% PENGATURAN LAIN-LAIN
+%======================================================================
+% Perintah kustom untuk bingkai gambar
+\newcommand{\customfbox}[1]{%
+  \setlength{\fboxsep}{0pt}%
+  \setlength{\fboxrule}{0.5pt}%
+  \fcolorbox{black}{white}{#1}%
+}
+
+% Mengganti nama default "Figure" menjadi "Gambar"
+\renewcommand{\figurename}{Gambar}
+\renewcommand{\thefigure}{\arabic{figure}}
+
+% Pengaturan Hyperlink
+\hypersetup{
+    colorlinks=true, 
+    linkcolor=black, 
+    filecolor=black, 
+    urlcolor=black,
+    citecolor=black,
+    pdftitle={Laporan Praktikum}, 
+    pdfpagemode=FullScreen, 
+    breaklinks=true
+}
+
+% Pengaturan Header & Footer (nomor halaman di tengah bawah)
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyfoot[C]{\thepage}
+    \renewcommand{\headrulewidth}{0pt}
+}
+
+%======================================================================
+% PENGATURAN STRUKTUR BAB DAN DAFTAR ISI
+%======================================================================
+\renewcommand{\contentsname}{Daftar Isi}
+\renewcommand{\bibname}{Daftar Pustaka}
+
+% Menghilangkan nomor bab tetapi mempertahankan penomoran seksi
+\renewcommand{\thechapter}{}
+\renewcommand{\chaptername}{}
+
+% Format penomoran seksi menjadi [nomor bab].[nomor seksi]
+\renewcommand{\thesection}{\arabic{chapter}.\arabic{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+% Format Daftar Isi (TOC)
+\renewcommand{\cftchapdotsep}{\cftdotsep}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftchapdotsep}}
+\setlength{\cftchapindent}{0em}
+\setlength{\cftsecindent}{2em}
+\setlength{\cftsubsecindent}{4em}
+\setlength{\cftchapnumwidth}{0em}
+\setlength{\cftsecnumwidth}{2.5em}
+\setlength{\cftsubsecnumwidth}{3.2em}
+\renewcommand{\cftchappresnum}{}
+\renewcommand{\cftchapaftersnum}{}
+
+% Perintah kustom untuk membuat judul bab di TOC menjadi tebal
+\newcommand{\tocboldsection}[1]{%
+  \protect\renewcommand{\protect\cftchapfont}{\protect\bfseries}%
+  #1%
+  \protect\renewcommand{\protect\cftchapfont}{}%
+}
+
+%======================================================================
+% AWAL DOKUMEN
+%======================================================================
+\begin{document}
+
+% Halaman Judul
+\newgeometry{left=3cm, right=2.5cm, top=2.5cm, bottom=3cm}
+\begin{titlingpage}
+\begin{spacing}{1}
+\begin{center}
+\vspace*{0.2cm}
+{\large \textbf{\MakeUppercase{Laporan Praktikum}}} \\[0.4cm]
+{\large \textbf{\MakeUppercase{KONSTRUKSI DAN EVOLUSI
+PERANGKAT LUNAK}}} \\[0.4cm]
+{\large \textbf{\MakeUppercase{Pertemuan 1}}} \\[0.4cm]
+{\large \textbf{\MakeUppercase{MANAJEMEN GITHUB \& PRINSIP CI}}} \\[1.5cm]
+
+\includegraphics[height=7cm]{images/UGM.png} \\[0.7cm]
+
+{\normalsize \textbf{Disusun oleh:}} \\[0.4cm]
+\begin{tabular}{@{}l l @{}}
+  \textbf{Nama}           & : Hafidz Rizqullah Prasetya \\
+  \textbf{NIM}            & : 24/535493/SV/24243 \\
+  \textbf{Kelas}          & : PL5A1 \\
+  \textbf{Dosen Pengampu} & : Dosen Pengampu KEPL
+\end{tabular} \\[1.2cm]
+
+{\normalsize \textbf{PROGRAM STUDI D-IV}} \\[0.2cm]
+{\normalsize \textbf{TEKNOLOGI REKAYASA PERANGKAT LUNAK}} \\[0.2cm]
+{\normalsize \textbf{DEPARTEMEN TEKNIK ELEKTRO DAN INFORMATIKA}} \\[0.2cm]
+{\normalsize \textbf{SEKOLAH VOKASI}} \\[0.2cm]
+{\normalsize \textbf{UNIVERSITAS GADJAH MADA}} \\[0.2cm]
+{\normalsize \textbf{YOGYAKARTA}} \\[0.2cm]
+{\normalsize \textbf{2026}} \\[1.2cm]
+\end{center}
+\end{spacing}
+\end{titlingpage}
+\restoregeometry
+
+\thispagestyle{empty}
+\clearpage
+\stepcounter{page}
+\thispagestyle{empty}
+
+% --- Daftar Isi ---
+\addcontentsline{toc}{chapter}{Daftar Isi}
+\tableofcontents
+\clearpage
+
+% Mengatur penomoran halaman menjadi arab dan mulai dari 3
+\pagenumbering{arabic}
+\setcounter{page}{3}
+
+\chapter[Tujuan Praktikum]{Tujuan Praktikum}
+\begin{enumerate}
+   \item Mahasiswa mampu memahami konsep manajemen versi dengan Git dan GitHub serta alur branch \texttt{main} $\leftarrow$ \texttt{dev} $\leftarrow$ \texttt{feature/*}.
+   \item Mahasiswa mampu menerapkan Conventional Commits dan Pull Request sebagai gerbang integrasi.
+   \item Mahasiswa mampu menyusun pipeline CI minimal dua job yang berjalan hijau di GitHub Actions.
+   \item Mahasiswa mampu mengkonfigurasi branch protection rule pada \texttt{main} dan \texttt{dev}.
+\end{enumerate}
+\clearpage
+
+\chapter{Dasar Teori}
+
+\section{}
+
+\subsection{} % Jika ada
+
+\begin{figure}[H]
+    \centering
+    \fbox{\includegraphics[width=1\textwidth]{images/placeholder.png}}
+    \caption{}
+\end{figure}
+
+\section{}
+
+\subsection{} % Jika ada
+
+\begin{figure}[H]
+    \centering
+    \fbox{\includegraphics[width=1\textwidth]{images/placeholder.png}}
+    \caption{}
+\end{figure}
+
+%Lanjutkan berulangg jangan lupa /citenya
+
+\clearpage
+
+\chapter[\tocboldsection{Hasil dan Pembahasan}]{Hasil dan Pembahasan}
+
+\section{Percobaan Latihan Praktikum}
+
+
+\subsection{}
+
+
+\begin{enumerate}
+    \item \textbf{}
+
+    \begin{figure}[H]
+        \centering
+        \fbox{\includegraphics[width=1\textwidth]{images/placeholder.png}}
+        \caption{}
+    \end{figure}
+
+    \item \textbf{}
+
+    \begin{figure}[H]
+        \centering
+        \fbox{\includegraphics[width=1\textwidth]{images/placeholder.png}}
+        \caption{}
+    \end{figure}
+
+\end{enumerate}
+
+\subsection{}
+
+
+\begin{enumerate}
+    \item \textbf{}
+
+    \begin{figure}[H]
+        \centering
+        \fbox{\includegraphics[width=1\textwidth]{images/placeholder.png}}
+        \caption{}
+    \end{figure}
+
+    \item \textbf{}
+
+    \begin{figure}[H]
+        \centering
+        \fbox{\includegraphics[width=1\textwidth]{images/placeholder.png}}
+        \caption{}
+    \end{figure}
+
+\end{enumerate}
+
+% Teruskan berulang jika adaa latihan percobaan
+
+\section{Tugas dan Analisis Praktikum}
+
+
+\subsection{}
+
+
+\begin{enumerate}
+    \item \textbf{}
+
+    \begin{figure}[H]
+        \centering
+        \fbox{\includegraphics[width=1\textwidth]{images/placeholder.png}}
+        \caption{}
+    \end{figure}
+
+    \item \textbf{}
+
+    \begin{figure}[H]
+        \centering
+        \fbox{\includegraphics[width=1\textwidth]{images/placeholder.png}}
+        \caption{}
+    \end{figure}
+
+\end{enumerate}
+
+\subsection{}
+
+
+\begin{enumerate}
+    \item \textbf{}
+
+    \begin{figure}[H]
+        \centering
+        \fbox{\includegraphics[width=1\textwidth]{images/placeholder.png}}
+        \caption{}
+    \end{figure}
+
+    \item \textbf{}
+
+    \begin{figure}[H]
+        \centering
+        \fbox{\includegraphics[width=1\textwidth]{images/placeholder.png}}
+        \caption{}
+    \end{figure}
+
+\end{enumerate}
+
+% Teruskan berulang jika adaa tugas praktikum
+
+
+\clearpage
+
+\chapter{Kesimpulan}
+Berdasarkan praktikum yang telah dilakukan, dapat disimpulkan bahwa.... % Teruskan dan pastinya format paragraf
+
+\clearpage
+\addcontentsline{toc}{chapter}{Daftar Pustaka}
+\renewcommand{\bibname}{Daftar Pustaka}
+\begin{thebibliography}{99}
+    \bibitem{}  \textit{}, Waktunya kapan. [Online]. Tersedia: \url{}.
+    \bibitem{}  \textit{}, Waktunya kapan. [Online]. Tersedia: \url{}.
+    \bibitem{}  \textit{}, Waktunya kapan. [Online]. Tersedia: \url{}.
+    \bibitem{}  \textit{}, Waktunya kapan. [Online]. Tersedia: \url{}.
+    \bibitem{}  \textit{}, Waktunya kapan. [Online]. Tersedia: \url{}.
+\end{thebibliography}
+
+\end{document}
