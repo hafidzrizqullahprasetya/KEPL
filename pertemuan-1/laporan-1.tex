@@ -180,63 +180,63 @@ Sesuai dengan arahan pada pertemuan pertama dan deskripsi tugas di Google Classr
 \section{Manajemen Versi dengan Git dan GitHub}
 Git adalah sistem kontrol versi terdistribusi yang mencatat setiap perubahan sebagai commit dengan identitas hash. Setiap commit menyimpan snapshot, pesan, penulis, dan parent-nya, sehingga riwayat proyek bisa ditelusuri dan dikembalikan kapan saja \cite{progit,chacon2024}. GitHub menambahkan lapisan kolaborasi di atas Git: hosting repository, issue, pull request, Actions, dan pengaturan akses \cite{github-docs,github-branches}.
 
-Dalam konteks konstruksi perangkat lunak, Git membantu saya menjaga setiap perubahan tetap terdokumentasi. Saya tidak lagi mengandalkan folder \texttt{final\_v2\_revisi} karena semua ada di riwayat commit. Ketika ada kesalahan, saya bisa melihat siapa mengubah apa dan kapan, lalu memutuskan untuk revert atau memperbaiki lewat commit baru.
+Dalam konteks konstruksi perangkat lunak, Git membantu menjaga setiap perubahan tetap terdokumentasi tanpa mengandalkan folder \texttt{final\_v2\_revisi} karena semua tercatat di riwayat commit. Ketika terjadi kesalahan, riwayat tersebut memudahkan pelacakan siapa mengubah apa dan kapan, sehingga keputusan untuk revert atau memperbaiki lewat commit baru dapat diambil secara terukur.
 
 \section{Strategi Branching: \texttt{main} $\leftarrow$ \texttt{dev} $\leftarrow$ \texttt{feature/*}}
-Strategi branching yang saya pakai di tugas ini mengikuti pola sederhana yang diminta di Classroom: \texttt{main} sebagai branch stabil, \texttt{dev} sebagai integrasi, dan \texttt{feature/*} untuk pekerjaan fitur. Alurnya \texttt{feature/*} $\rightarrow$ \texttt{dev} $\rightarrow$ \texttt{main} \cite{github-flow,drake2023}. Model ini adalah penyederhanaan dari Git Flow \cite{atlassian-gitflow} yang memisahkan pekerjaan agar \texttt{main} tidak mudah rusak.
+Strategi branching yang digunakan mengikuti pola sederhana sesuai instruksi tugas: \texttt{main} sebagai branch stabil, \texttt{dev} sebagai integrasi, dan \texttt{feature/*} untuk pekerjaan fitur. Alurnya \texttt{feature/*} $\rightarrow$ \texttt{dev} $\rightarrow$ \texttt{main} \cite{github-flow,drake2023}. Model ini merupakan penyederhanaan dari Git Flow \cite{atlassian-gitflow} yang memisahkan pekerjaan agar \texttt{main} tetap stabil.
 
-Saya membuat \texttt{dev} dari \texttt{main}, lalu setiap fitur saya kerjakan di branch \texttt{feature/} yang bercabang dari \texttt{dev}. Setelah selesai, saya buka Pull Request \texttt{feature} $\rightarrow$ \texttt{dev}, lalu setelah stabil saya buka PR \texttt{dev} $\rightarrow$ \texttt{main}. Dengan cara ini \texttt{main} hanya menerima perubahan yang sudah melewati review dan CI di \texttt{dev}.
+Branch \texttt{dev} dibuat dari \texttt{main}, lalu setiap fitur dikerjakan di branch \texttt{feature/} yang bercabang dari \texttt{dev}. Setelah selesai, dibuka Pull Request \texttt{feature} $\rightarrow$ \texttt{dev}, kemudian setelah stabil dibuka PR \texttt{dev} $\rightarrow$ \texttt{main}. Dengan cara ini \texttt{main} hanya menerima perubahan yang sudah melewati review dan CI di \texttt{dev}.
 
 \begin{figure}[H]
     \centering
     \customfbox{\includegraphics[width=0.95\textwidth]{images/ss-03-graph.jpg}}
-    \caption{Ilustrasi alur branching \texttt{feature} $\rightarrow$ \texttt{dev} $\rightarrow$ \texttt{main} yang saya praktikkan — setiap panah adalah Pull Request, bukan push langsung (graf \texttt{git log --graph} yang sama).}
+    \caption{Ilustrasi alur branching \texttt{feature} $\rightarrow$ \texttt{dev} $\rightarrow$ \texttt{main} — setiap panah adalah Pull Request, bukan push langsung (graf \texttt{git log --graph} yang sama).}
     \label{fig:branching}
 \end{figure}
 
 \section{Conventional Commits}
 Conventional Commits adalah format pesan commit yang terstruktur: \texttt{type(scope): deskripsi} \cite{conventional-commits}. Type yang umum adalah \texttt{feat}, \texttt{fix}, \texttt{docs}, \texttt{chore}, \texttt{test}, dan \texttt{ci}. Tujuannya agar riwayat mudah dibaca, mudah difilter, dan bisa dipakai untuk generate changelog otomatis.
 
-Di tugas ini saya menjaga semua commit menggunakan format tersebut dan menghindari commit polos seperti ``update'' yang dinilai nol. Contoh yang saya pakai: \texttt{feat: tambah logika perhitungan IP semester berbobot SKS}, \texttt{test: tambah pengujian unit untuk bobot dan hitungIP}, \texttt{ci: tambah workflow dua job untuk uji unit dan lint style}. Pesan yang jelas memudahkan dosen menilai progres tanpa harus membuka tiap file.
+Pada tugas ini semua commit dijaga menggunakan format tersebut dan commit polos seperti ``update'' yang dinilai nol dihindari. Contoh yang digunakan: \texttt{feat: tambah logika perhitungan IP semester berbobot SKS}, \texttt{test: tambah pengujian unit untuk bobot dan hitungIP}, \texttt{ci: tambah workflow dua job untuk uji unit dan lint style}. Pesan yang jelas memudahkan penilaian progres tanpa harus membuka tiap file.
 
 \section{Pull Request sebagai Gerbang Integrasi}
 Pull Request (PR) adalah mekanisme di GitHub untuk mengusulkan perubahan dari satu branch ke branch lain \cite{github-pr}. PR menjadi tempat diskusi, review kode, dan tempat CI berjalan. Tanpa PR, perubahan bisa langsung masuk ke \texttt{main} dan merusak branch stabil.
 
-Pada praktikum ini saya tidak pernah push langsung ke \texttt{main} atau \texttt{dev} setelah protection aktif. Semua perubahan lewat PR. GitHub menampilkan status check dari Actions di dalam PR, sehingga saya baru bisa merge ketika kedua job CI hijau. Saya juga sengaja menguji protection dengan mencoba push langsung, dan hasilnya ditolak dengan pesan \texttt{GH006: Protected branch update failed}, yang lalu saya perbaiki lewat branch \texttt{fix/revert-*} dan PR kembali.
+Pada praktikum ini tidak ada push langsung ke \texttt{main} atau \texttt{dev} setelah protection aktif. Semua perubahan melalui PR. GitHub menampilkan status check dari Actions di dalam PR, sehingga merge baru dilakukan ketika kedua job CI hijau. Protection sengaja diuji dengan mencoba push langsung dan hasilnya ditolak dengan pesan \texttt{GH006: Protected branch update failed}, yang kemudian diperbaiki melalui branch \texttt{fix/revert-*} dan PR kembali.
 
 \section{Continuous Integration dengan GitHub Actions}
 Continuous Integration (CI) adalah praktik mengintegrasikan perubahan secara sering dan memverifikasinya secara otomatis \cite{github-actions,fowler-ci, dicoding-ci}. GitHub Actions menjalankan workflow yang didefinisikan di \texttt{.github/workflows/ci.yml} setiap ada \texttt{push} atau \texttt{pull\_request} ke branch tertentu.
 
-Workflow yang saya buat memiliki dua job paralel yang diminta di tugas:
+Workflow yang disusun memiliki dua job paralel sesuai instruksi tugas:
 \begin{itemize}
     \item \textbf{uji} — menjalankan \texttt{composer install}, menyiapkan \texttt{.env}, \texttt{key:generate}, \texttt{migrate}, lalu \texttt{./vendor/bin/phpunit --testdox}.
     \item \textbf{lint} — menjalankan \texttt{./vendor/bin/pint --test} untuk memastikan style kode konsisten.
 \end{itemize}
-Keduanya berjalan di \texttt{ubuntu-latest} dengan PHP 8.5 (awalnya sempat gagal di 8.3 karena Laravel 13 butuh $\geq$8.4, lalu saya perbaiki). Indikator hijau di tab Actions menjadi bukti bahwa perubahan layak di-merge.
+Keduanya berjalan di \texttt{ubuntu-latest} dengan PHP 8.5 (awalnya sempat gagal di 8.3 karena Laravel 13 butuh $\geq$8.4, lalu diperbaiki). Indikator hijau di tab Actions menjadi bukti bahwa perubahan layak di-merge.
 
 \begin{figure}[H]
     \centering
     \customfbox{\includegraphics[width=0.95\textwidth]{images/ss-06-actions.jpg}}
-    \caption{Konsep CI yang saya terapkan: setiap push ke \texttt{main} atau \texttt{dev} memicu dua job paralel (\texttt{Uji unit \& fitur} dan \texttt{Lint style}) yang harus hijau sebelum merge (cuplikan Actions yang sama).}
+    \caption{Konsep CI yang diterapkan: setiap push ke \texttt{main} atau \texttt{dev} memicu dua job paralel (\texttt{Uji unit \& fitur} dan \texttt{Lint style}) yang harus hijau sebelum merge (cuplikan Actions yang sama).}
     \label{fig:ci-konsep}
 \end{figure}
 
 \section{Branch Protection Rule}
-Branch protection adalah aturan di GitHub yang mencegah push langsung dan mewajibkan status check sebelum merge \cite{github-protection}. Di repository saya, \texttt{main} dan \texttt{dev} saya proteksi dengan:
+Branch protection adalah aturan di GitHub yang mencegah push langsung dan mewajibkan status check sebelum merge \cite{github-protection}. Pada repository ini, \texttt{main} dan \texttt{dev} diproteksi dengan:
 \begin{itemize}
     \item \texttt{enforce\_admins: true} — bahkan admin tidak bisa bypass.
     \item \texttt{required\_status\_checks.strict: true} — branch harus up-to-date dengan base sebelum merge.
     \item \texttt{contexts: ["Uji unit \& fitur", "Lint style (Pint)"]} — dua job CI wajib lolos.
 \end{itemize}
-Setelah protection aktif, setiap percobaan push langsung tertolak, dan merge hanya bisa lewat PR yang sudah hijau. Saya juga menambahkan dosen (\texttt{alesana001} / Galih Malela Damaraji) sebagai collaborator dengan hak \texttt{Read} agar bisa menilai tanpa bisa mengubah kode.
+Setelah protection aktif, setiap percobaan push langsung tertolak dan merge hanya bisa melalui PR yang sudah hijau. Dosen (\texttt{alesana001} / Galih Malela Damaraji) ditambahkan sebagai collaborator dengan hak \texttt{Read} agar dapat menilai tanpa mengubah kode.
 
 \clearpage
 
 \chapter[\tocboldsection{Hasil dan Pembahasan}]{Hasil dan Pembahasan}
-Pada bab ini saya menjelaskan apa yang sudah saya kerjakan untuk Tugas 1 sesuai instruksi di Classroom: join organization \texttt{KEPL2026}, membuat repository publik \texttt{evolusi-pl-NIM}, menerapkan Conventional Commits, alur branch, dua PR, CI dua job, dan branch protection. Semua langkah saya verifikasi dengan perintah \texttt{gh}, \texttt{git}, dan eksekusi lokal.
+Pada bab ini saya menjelaskan pekerjaan untuk Tugas 1 sesuai instruksi di Classroom: join organization \texttt{KEPL2026}, membuat repository publik \texttt{evolusi-pl-NIM}, menerapkan Conventional Commits, alur branch, dua PR, CI dua job, dan branch protection. Semua langkah diverifikasi dengan perintah \texttt{gh}, \texttt{git}, dan eksekusi lokal.
 
 \section{Alat dan Bahan}
-Alat dan bahan yang saya gunakan:
+Alat dan bahan yang digunakan:
 \begin{itemize}
     \item Laptop dengan OS Linux, akses internet, dan akun GitHub \texttt{hafidzrizqullahprasetya}.
     \item Git, GitHub CLI (\texttt{gh} 2.98.0), PHP 8.5.4, Composer, Laravel 13.29.0, PHPUnit 12.5.34, Laravel Pint 1.30.5.
@@ -246,7 +246,7 @@ Alat dan bahan yang saya gunakan:
 
 \section{Persiapan Repository}
 
-Saya membuat repository publik bernama \texttt{evolusi-pl-535493} sesuai NIM saya 535493. Repository ini publik supaya kuota GitHub Actions gratis dan bisa diakses dosen. Perintah verifikasi yang saya jalankan:
+Repository publik dibuat dengan nama \texttt{evolusi-pl-535493} sesuai NIM 535493. Repository dibuat publik agar kuota GitHub Actions gratis dan dapat diakses dosen. Perintah verifikasi yang dijalankan:
 
 \begin{lstlisting}[style=bashstyle,caption={Verifikasi repository publik.}]
 gh repo view --json nameWithOwner,url,isPrivate,defaultBranchRef
@@ -266,7 +266,7 @@ Repository contoh \texttt{KEPL2026/evolusi-pl-contoh} tersedia sebagai referensi
 
 \section{Penerapan Conventional Commits}
 
-Saya menjaga semua commit mengikuti Conventional Commits. Tidak ada commit ``update'' polos. Riwayat commit yang saya hasilkan (tanpa merge):
+Semua commit dijaga mengikuti Conventional Commits. Tidak ada commit ``update'' polos. Riwayat commit yang dihasilkan (tanpa merge):
 
 \begin{lstlisting}[style=bashstyle,caption={Riwayat commit non-merge (7 commit inti).}]
 bf3c332 docs: sederhanakan struktur README dan rapikan kode
@@ -291,7 +291,7 @@ Dua commit terakhir \texttt{docs} sempat saya rewrite dengan \texttt{filter-bran
 
 \section{Strategi Branching \texttt{main} $\leftarrow$ \texttt{dev} $\leftarrow$ \texttt{feature/*}}
 
-Saya membuat \texttt{dev} dari \texttt{main}, lalu setiap fitur dari \texttt{dev}:
+\texttt{dev} dibuat dari \texttt{main}, lalu setiap fitur dari \texttt{dev}:
 
 \begin{lstlisting}[style=bashstyle,caption={Daftar branch lokal dan remote.}]
 git branch -a
@@ -307,7 +307,7 @@ git branch -a
     \label{fig:branch-list}
 \end{figure}
 
-Alur yang saya jalankan:
+Alur yang dijalankan:
 \begin{itemize}
     \item \texttt{feature/kalkulator-ip} $\rightarrow$ \texttt{dev} (PR \#1)
     \item \texttt{dev} $\rightarrow$ \texttt{main} (PR \#2)
@@ -324,7 +324,7 @@ Alur yang saya jalankan:
     \label{fig:graph}
 \end{figure}
 
-Saya memastikan tidak ada push langsung ke branch terproteksi setelah aturan aktif. Semua perubahan harus lewat PR.
+Tidak ada push langsung ke branch terproteksi setelah aturan aktif. Semua perubahan harus melalui PR.
 
 \section{Pull Request: Dua Jalur Wajib}
 
@@ -351,11 +351,11 @@ Instruksi tugas meminta minimal dua PR: \texttt{feature} $\rightarrow$ \texttt{d
 
 Dua PR inti yang memenuhi syarat tugas adalah PR \#1 (\texttt{feature/kalkulator-ip} $\rightarrow$ \texttt{dev}) dan PR \#2 (\texttt{dev} $\rightarrow$ \texttt{main}). PR berikutnya adalah iterasi perbaikan README dan sinkronisasi, tetap mengikuti alur yang sama.
 
-Setiap PR menampilkan checks dari GitHub Actions. Saya baru melakukan merge setelah kedua job hijau, sesuai aturan protection.
+Setiap PR menampilkan checks dari GitHub Actions. Merge baru dilakukan setelah kedua job hijau sesuai aturan protection.
 
 \section{Pipeline CI Dua Job}
 
-Saya menambahkan \texttt{.github/workflows/ci.yml} dengan dua job paralel:
+File \texttt{.github/workflows/ci.yml} ditambahkan dengan dua job paralel:
 
 \begin{lstlisting}[style=yamlstyle,caption={Workflow CI dua job (\texttt{.github/workflows/ci.yml}).}]
 name: CI
@@ -390,7 +390,7 @@ jobs:
       - run: ./vendor/bin/pint --test
 \end{lstlisting}
 
-Awalnya job sempat gagal di PHP 8.3 karena Laravel 13 membutuhkan PHP $\geq$8.4 (error Symfony 8.1), lalu saya perbaiki ke 8.5 di commit \texttt{ci: ganti PHP runner ke 8.5} dan sejak itu semua hijau:
+Awalnya job sempat gagal di PHP 8.3 karena Laravel 13 membutuhkan PHP $\geq$8.4 (error Symfony 8.1), lalu diperbaiki ke 8.5 di commit \texttt{ci: ganti PHP runner ke 8.5} dan sejak itu semua hijau:
 
 \begin{lstlisting}[style=bashstyle,caption={Riwayat GitHub Actions (8 run terbaru, semua success).}]
 completed success  Merge PR #9 dev->main           CI  main  push  33477480051  24s
@@ -409,7 +409,7 @@ completed success  docs: perbaiki README (feature) CI feature/perbaiki-readme pu
 
 \section{Branch Protection dan Collaborator}
 
-Saya mengaktifkan branch protection pada \texttt{main} dan \texttt{dev} lewat API. Hasil verifikasi:
+Branch protection pada \texttt{main} dan \texttt{dev} diaktifkan lewat API. Hasil verifikasi:
 
 \begin{lstlisting}[style=bashstyle,caption={Verifikasi branch protection lewat API.}]
 gh api repos/hafidzrizqullahprasetya/evolusi-pl-535493/branches/main/protection
@@ -426,7 +426,7 @@ gh api repos/hafidzrizqullahprasetya/evolusi-pl-535493/branches/dev/protection
     \label{fig:protection}
 \end{figure}
 
-Untuk membuktikan protection bekerja, saya sengaja mencoba push langsung ke branch terproteksi:
+Untuk membuktikan protection bekerja, sengaja dilakukan percobaan push langsung ke branch terproteksi:
 
 \begin{lstlisting}[style=bashstyle,caption={Push langsung ditolak protection.}]
 git push origin main
@@ -434,16 +434,16 @@ git push origin main
 # remote: - Changes must be made through a pull request.
 \end{lstlisting}
 
-Setelah itu saya memperbaiki lewat branch \texttt{fix/revert-*} dan merge via PR seperti yang terlihat di graf sebelumnya. Protection sudah saya kembalikan ke \texttt{enforce\_admins: true} setelah pengujian.
+Setelah itu perbaikan dilakukan lewat branch \texttt{fix/revert-*} dan merge via PR seperti yang terlihat di graf sebelumnya. Protection kemudian dikembalikan ke \texttt{enforce\_admins: true} setelah pengujian.
 
-Untuk collaborator, saya menambahkan dosen sebagai Read sesuai instruksi:
+Untuk collaborator, dosen ditambahkan sebagai Read sesuai instruksi:
 
 \begin{lstlisting}[style=bashstyle,caption={Menambahkan dosen sebagai collaborator Read.}]
 gh api -X PUT repos/hafidzrizqullahprasetya/evolusi-pl-535493/collaborators/alesana001 -f permission=pull
 # invite created: alesana001 read 2026-09-03T05:14:49Z
 \end{lstlisting}
 
-Akun \texttt{alesana001} (Galih Malela Damaraji) sudah saya invite dengan hak \texttt{pull} (Read). Di daftar collaborator, invite tercatat dan menunggu diterima. Saya tidak memberi hak Write/Admin agar sesuai instruksi ``peran Read''.
+Akun \texttt{alesana001} (Galih Malela Damaraji) telah di-invite dengan hak \texttt{pull} (Read). Di daftar collaborator, invite tercatat dan menunggu diterima. Hak Write/Admin tidak diberikan agar sesuai instruksi ``peran Read''.
 
 \begin{figure}[H]
     \centering
@@ -495,13 +495,13 @@ Halaman \texttt{/ip} menampilkan kalkulator IP semester yang memakai \texttt{IpC
 \clearpage
 
 \chapter{Kesimpulan}
-Berdasarkan praktikum yang telah saya lakukan pada Pertemuan 1, saya menyimpulkan beberapa hal:
+Berdasarkan praktikum pada Pertemuan 1, dapat disimpulkan beberapa hal:
 
 \begin{enumerate}
-    \item Saya memahami dan menerapkan manajemen versi dengan Git dan GitHub. Repository \texttt{evolusi-pl-535493} saya buat publik dengan default branch \texttt{main} dan semua perubahan tercatat sebagai commit yang bisa ditelusuri.
-    \item Saya menerapkan Conventional Commits untuk 9 commit inti tanpa ada commit ``update'' polos, serta menjaga alur branching \texttt{feature/*} $\rightarrow$ \texttt{dev} $\rightarrow$ \texttt{main} yang bersih. Semua perubahan masuk lewat Pull Request, bukan push langsung.
-    \item Saya menyusun pipeline CI dengan dua job paralel (\texttt{Uji unit \& fitur} dan \texttt{Lint style (Pint)}) di GitHub Actions yang berjalan hijau untuk setiap push dan pull request ke \texttt{main} dan \texttt{dev}. Perbaikan versi PHP dari 8.3 ke 8.5 menjadi contoh bagaimana CI memberi umpan balik cepat.
-    \item Saya mengkonfigurasi branch protection pada \texttt{main} dan \texttt{dev} dengan \texttt{enforce\_admins: true}, \texttt{strict: true}, dan dua required checks, serta menguji bahwa push langsung memang tertolak. Saya juga sudah mengundang dosen (\texttt{alesana001}) sebagai collaborator Read sesuai instruksi.
+    \item Praktik manajemen versi dengan Git dan GitHub telah diterapkan. Repository \texttt{evolusi-pl-535493} dibuat publik dengan default branch \texttt{main} dan semua perubahan tercatat sebagai commit yang dapat ditelusuri.
+    \item Penerapan Conventional Commits dilakukan untuk 9 commit inti tanpa ada commit ``update'' polos, serta alur branching \texttt{feature/*} $\rightarrow$ \texttt{dev} $\rightarrow$ \texttt{main} dijaga tetap bersih. Semua perubahan masuk melalui Pull Request, bukan push langsung.
+    \item Pipeline CI dengan dua job paralel (\texttt{Uji unit \& fitur} dan \texttt{Lint style (Pint)}) di GitHub Actions disusun dan berjalan hijau untuk setiap push dan pull request ke \texttt{main} dan \texttt{dev}. Perbaikan versi PHP dari 8.3 ke 8.5 menjadi contoh bagaimana CI memberi umpan balik cepat.
+    \item Branch protection pada \texttt{main} dan \texttt{dev} dikonfigurasi dengan \texttt{enforce\_admins: true}, \texttt{strict: true}, dan dua required checks, serta telah diuji bahwa push langsung memang tertolak. Dosen (\texttt{alesana001}) juga telah diundang sebagai collaborator Read sesuai instruksi.
 \end{enumerate}
 
 Dengan ini, alur evolusi perangkat lunak yang diminta di Tugas 1 sudah berjalan: kode teruji, style terjaga, riwayat rapi, dan branch utama terlindungi.
