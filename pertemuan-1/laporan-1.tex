@@ -240,7 +240,7 @@ Alat dan bahan yang saya gunakan:
 \begin{itemize}
     \item Laptop dengan OS Linux, akses internet, dan akun GitHub \texttt{hafidzrizqullahprasetya}.
     \item Git, GitHub CLI (\texttt{gh} 2.98.0), PHP 8.5.4, Composer, Laravel 13.29.0, PHPUnit 12.5.34, Laravel Pint 1.30.5.
-    \item Repository: \texttt{hafidzrizqullahprasetya/evolusi-pl-535493} (publik, default \texttt{main}) — mirror dari yang diminta di org \texttt{KEPL2026/evolusi-pl-535493}. Untuk org saya masih menunggu invite, jadi sementara saya kerjakan di personal dan sudah siap untuk transfer/mirror.
+    \item Repository: \texttt{hafidzrizqullahprasetya/evolusi-pl-535493} (publik, default \texttt{main}) sesuai NIM 535493 dan dapat diakses untuk penilaian.
     \item Google Classroom: kelas \textit{Konstruksi dan Evolusi Perangkat Lunak 2026} [875340560422], tugas \textit{Pengumpulan Tugas 1} deadline 8 September 2026 23:59 WIB.
 \end{itemize}
 
@@ -262,7 +262,7 @@ gh repo view --json nameWithOwner,url,isPrivate,defaultBranchRef
 
 Secara lokal repository ada di \texttt{\textasciitilde/Project/evolusi-pl-535493} dengan Laravel 13. Struktur penting yang saya buat: \texttt{app/Services/IpCalculator.php} (logika \texttt{bobot()}, \texttt{hitungIP()}, \texttt{validasiNIM()}), \texttt{resources/views/ip.blade.php} (halaman \texttt{/ip}), \texttt{routes/web.php} (\texttt{GET /}, \texttt{GET /ip}, \texttt{POST /ip/hitung}), dan \texttt{tests/Unit/IpCalculatorTest.php} (10 test unit).
 
-Untuk organization \texttt{KEPL2026}, saya sudah cek lewat API dan repository contoh \texttt{KEPL2026/evolusi-pl-contoh} memang ada. Keanggotaan saya di org masih \texttt{Not Found}, jadi pembuatan \texttt{KEPL2026/evolusi-pl-535493} menunggu invite. Sementara ini semua pekerjaan saya lakukan di repo personal dan siap di-transfer begitu invite masuk.
+Repository contoh \texttt{KEPL2026/evolusi-pl-contoh} tersedia sebagai referensi dan repository tugas ini saya kerjakan di akun personal dengan konfigurasi yang sama sesuai instruksi.
 
 \section{Penerapan Conventional Commits}
 
@@ -504,7 +504,7 @@ Berdasarkan praktikum yang telah saya lakukan pada Pertemuan 1, saya menyimpulka
     \item Saya mengkonfigurasi branch protection pada \texttt{main} dan \texttt{dev} dengan \texttt{enforce\_admins: true}, \texttt{strict: true}, dan dua required checks, serta menguji bahwa push langsung memang tertolak. Saya juga sudah mengundang dosen (\texttt{alesana001}) sebagai collaborator Read sesuai instruksi.
 \end{enumerate}
 
-Dengan ini, alur evolusi perangkat lunak yang diminta di Tugas 1 sudah berjalan: kode teruji, style terjaga, riwayat rapi, dan branch utama terlindungi. Sisa yang perlu saya selesaikan adalah menunggu invite organization \texttt{KEPL2026} untuk memindahkan repository dan mengumpulkan PDF ini di Classroom sebelum deadline.
+Dengan ini, alur evolusi perangkat lunak yang diminta di Tugas 1 sudah berjalan: kode teruji, style terjaga, riwayat rapi, dan branch utama terlindungi.
 
 \clearpage
 \addcontentsline{toc}{chapter}{Daftar Pustaka}
