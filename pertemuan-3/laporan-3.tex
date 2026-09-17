@@ -207,9 +207,9 @@ Alat dan bahan yang digunakan:
 \end{itemize}
 
 \section{Penyiapan Lingkungan Lokal}
-Pada pertemuan pertama pengujian hanya berjalan di GitHub Actions karena laptop belum punya PHP. Untuk praktikum ini saya memasang PHP 8.5 lewat PPA \texttt{ondrej/php} beserta Composer, supaya perintah \texttt{php artisan test} bisa dijalankan di laptop seperti yang diminta pada langkah tugas. Saya memilih versi 8.5 agar sama dengan versi yang dipakai runner di workflow. Setelah pemasangan, pengujian dan pemeriksaan gaya kode dijalankan langsung di laptop:
+Sebelum pengujian dijalankan, saya memastikan lingkungan lokal siap dengan PHP 8.5 dan Composer, dan versi PHP disamakan dengan versi yang dipakai runner di workflow agar hasil lokal dan hasil di GitHub Actions tidak berbeda. Pengujian dan pemeriksaan gaya kode dijalankan langsung di laptop:
 
-\begin{lstlisting}[style=bashstyle,caption={Verifikasi lokal setelah PHP dipasang.}]
+\begin{lstlisting}[style=bashstyle,caption={Verifikasi lokal.}]
 php -v
 # PHP 8.5.10 (cli) (built: Aug 28 2026 06:46:18) (NTS)
 
@@ -223,7 +223,7 @@ php vendor/bin/pint --test
 \begin{figure}[H]
     \centering
     \customfbox{\includegraphics[width=0.95\textwidth]{images/ss-06-verifikasi-lokal.png}}
-    \caption{Hasil pengujian dan pemeriksaan gaya kode di laptop setelah PHP 8.5 dipasang.}
+    \caption{Hasil pengujian dan pemeriksaan gaya kode di laptop.}
     \label{fig:lokal}
 \end{figure}
 
@@ -358,7 +358,7 @@ gh run view 35199310754 --json jobs --jq '.jobs[] | "\(.name): \(.conclusion)"'
 \end{figure}
 
 \section{Kendala yang Ditemui}
-Ada beberapa kendala yang saya temui. Laptop belum punya PHP, jadi pengujian lokal tidak bisa dijalankan sebelum PHP 8.5 dipasang; setelah terpasang, hasilnya cocok dengan hasil di runner. Kendala lain muncul saat direktori \texttt{vendor} dipindahkan antar job lewat artefak: izin eksekusi berkas \texttt{vendor/bin/pint} hilang, sehingga job \texttt{test} sempat gagal dengan pesan \textit{Permission denied}. Saya memperbaikinya dengan memanggil \texttt{php vendor/bin/pint} alih-alih \texttt{./vendor/bin/pint}. Mengubah nama job juga sempat menghambat karena status check wajib pada branch protection tidak lagi cocok dengan nama job yang baru, jadi daftar check perlu disesuaikan dulu sebelum PR bisa digabungkan.
+Ada beberapa kendala yang saya temui. Saat direktori \texttt{vendor} dipindahkan antar job lewat artefak, izin eksekusi berkas \texttt{vendor/bin/pint} hilang, sehingga job \texttt{test} sempat gagal dengan pesan \textit{Permission denied}. Saya memperbaikinya dengan memanggil \texttt{php vendor/bin/pint} alih-alih \texttt{./vendor/bin/pint}. Mengubah nama job juga sempat menghambat karena status check wajib pada branch protection tidak lagi cocok dengan nama job yang baru, jadi daftar check perlu disesuaikan dulu sebelum PR bisa digabungkan.
 
 \clearpage
 

@@ -191,7 +191,7 @@ Vue 3 adalah kerangka kerja JavaScript untuk membangun antarmuka yang reaktif \c
 Menuliskan alamat API langsung di dalam kode menyulitkan perpindahan antara lingkungan lokal dan produksi. Vite menyediakan variabel lingkungan berawalan \texttt{VITE\_} yang dibaca saat build dan diakses lewat \texttt{import.meta.env} \cite{vite-env}. Dengan pola ini, alamat backend cukup diganti di berkas \texttt{.env} tanpa mengubah kode sumber.
 
 \section{CORS pada API Laravel}
-CORS mengatur izin akses lintas domain di peramban \cite{mdn-cors}. Ketika aplikasi Vue dijalankan di \texttt{localhost:5173} dan API berada di \texttt{127.0.0.1:8001}, keduanya dianggap domain berbeda. Laravel menangani hal ini lewat berkas \texttt{config/cors.php} yang menentukan jalur, metode, dan asal yang diizinkan \cite{laravel-cors}.
+CORS mengatur izin akses lintas domain di peramban \cite{mdn-cors}. Ketika aplikasi Vue dijalankan di \texttt{localhost:5173} dan API berada di \texttt{127.0.0.1:8001}, keduanya dianggap domain berbeda. Laravel mengatur izin itu lewat berkas \texttt{config/cors.php} yang menentukan jalur, metode, dan asal yang diizinkan \cite{laravel-cors}.
 
 \section{Pipeline Frontend Empat Job}
 Workflow frontend mengikuti pola yang sama dengan pipeline backend: setiap job berjalan di mesin bersih dan dirangkai memakai \texttt{needs:} \cite{github-actions}. Pemasangan dependensi memakai \texttt{npm ci} agar versi paket persis mengikuti \texttt{package-lock.json}, dan cache \texttt{npm} mempercepat pemasangan pada job berikutnya \cite{github-node}. Hasil \texttt{npm run build} diunggah sebagai artifact, lalu diunduh job deploy. Karena artifact sudah berisi direktori \texttt{dist}, job deploy tidak perlu menjalankan \texttt{npm run build} lagi \cite{github-artifacts}.
@@ -423,7 +423,7 @@ gh run view 35202565338 --json jobs --jq '.jobs[] | "\(.name): \(.conclusion)"'
 Setelah bukti itu tersimpan, saya mengembalikan nilai harapan ke 2 dan push lagi. Pipeline kembali hijau pada commit berikutnya.
 
 \section{Kendala yang Ditemui}
-Ada beberapa kendala yang saya temui. Pengujian Vitest tidak boleh bergantung pada backend, sehingga logika yang diuji harus saya pisahkan dulu ke berkas tersendiri; kalau tidak, test akan gagal di GitHub Actions karena Laravel tidak berjalan di sana. Job \texttt{deploy} juga tetap memerlukan direktori \texttt{dist} padahal job itu tidak menjalankan build, jadi hasil build harus dioper lewat artifact. Jalur cache \texttt{npm} pun perlu diarahkan ke \texttt{frontend/package-lock.json} karena berkas kunci berada di subfolder, bukan di akar repository.
+Ada beberapa kendala yang saya temui. Pengujian Vitest tidak boleh bergantung pada backend, sehingga logika yang diuji harus saya pisahkan dulu ke berkas tersendiri; kalau tidak, test akan gagal di GitHub Actions karena Laravel tidak berjalan di sana. Direktori \texttt{dist} hasil build juga harus dioper lewat artifact, karena job \texttt{deploy} tidak menjalankan build. Jalur cache \texttt{npm} pun perlu diarahkan ke \texttt{frontend/package-lock.json} karena berkas kunci berada di subfolder, bukan di akar repository.
 
 \clearpage
 
