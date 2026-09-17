@@ -192,6 +192,13 @@ Deploy aplikasi Laravel di server mengikuti urutan yang tidak boleh ditukar \cit
 \section{Artefak Antar Job}
 Karena setiap job mulai dari mesin kosong, hasil pekerjaan satu job perlu diteruskan ke job berikutnya. \texttt{actions/upload-artifact} dan \texttt{actions/download-artifact} dipakai untuk memindahkan berkas antar job \cite{github-artifacts}. Pada praktikum ini direktori \texttt{vendor} hasil \texttt{composer install} di job \texttt{build} diunggah sebagai artefak, lalu diunduh oleh job \texttt{test}, sehingga pemasangan dependensi cukup dilakukan sekali.
 
+\begin{figure}[H]
+    \centering
+    \customfbox{\includegraphics[width=0.95\textwidth]{images/ss-04-log-deploy.png}}
+    \caption{Artefak yang dipindahkan antar job terlihat pada log: job \texttt{Deploy} mengunduh artefak \texttt{dist} hasil job \texttt{Build}.}
+    \label{fig:artefak}
+\end{figure}
+
 \clearpage
 
 \chapter[\tocboldsection{Hasil dan Pembahasan}]{Hasil dan Pembahasan}
@@ -201,7 +208,7 @@ Pada bab ini saya menjelaskan pekerjaan untuk Tugas 2 sesuai instruksi di Classr
 Alat dan bahan yang digunakan:
 \begin{itemize}
     \item Laptop dengan OS Linux, akses internet, dan akun GitHub \texttt{hafidzrizqullahprasetya}.
-    \item Git, GitHub CLI (\texttt{gh}), PHP 8.5.10, Composer 2.10.3, Laravel 13, PHPUnit, dan Laravel Pint.
+    \item Git, GitHub CLI (\texttt{gh}), PHP 8.5.10, Composer 2.10.3, Laravel 13, PHPUnit \cite{phpunit-docs}, dan Laravel Pint \cite{pint-docs}.
     \item Repository: \texttt{hafidzrizqullahprasetya/evolusi-pl-535493} (publik) dengan aplikasi Laravel berisi kalkulator IP semester dari pertemuan pertama.
     \item Google Classroom: kelas \textit{Konstruksi dan Evolusi Perangkat Lunak 2026} [875340560422], tugas \textit{Pengumpulan Tugas 2} dengan tenggat 26 September 2026.
 \end{itemize}

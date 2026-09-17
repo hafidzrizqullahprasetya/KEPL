@@ -142,7 +142,7 @@
   \textbf{Nama}           & : Hafidz Rizqullah Prasetya \\
   \textbf{NIM}            & : 24/535493/SV/24243 \\
   \textbf{Kelas}          & : PL5A1 \\
-  \textbf{Dosen Pengampu} & : Galih Malela Damara\v{z}i \\
+  \textbf{Dosen Pengampu} & : Galih Malela Damaraji \\
 \end{tabular} \\[1.2cm]
 
 {\normalsize \textbf{PROGRAM STUDI D-IV}} \\[0.2cm]
@@ -301,7 +301,7 @@ export function alamatApi(dasar) {
 Nilai variabelnya dicatat pada \texttt{frontend/.env.example} sebagai \texttt{VITE\_API\_URL=http://127.0.0.1:8000/api}, sehingga pengguna lain cukup menyalin berkas itu menjadi \texttt{.env} dan menyesuaikan alamatnya.
 
 \section{Workflow Frontend Empat Job}
-Workflow \texttt{.github/workflows/frontend.yml} berisi empat job berurutan: \texttt{lint}, \texttt{test}, \texttt{build}, dan \texttt{deploy}. Job \texttt{lint} dan \texttt{test} memakai \texttt{npm ci} dengan cache \texttt{npm} yang diarahkan ke \texttt{frontend/package-lock.json}. Job \texttt{build} mengunggah direktori \texttt{frontend/dist} sebagai artifact, dan job \texttt{deploy} mengunduh artifact itu tanpa menjalankan \texttt{npm run build} lagi.
+Workflow \texttt{.github/workflows/frontend.yml} berisi empat job berurutan: \texttt{lint}, \texttt{test}, \texttt{build}, dan \texttt{deploy}. Job \texttt{lint} dan \texttt{test} memakai \texttt{npm ci} dengan cache \texttt{npm} yang diarahkan ke \texttt{frontend/package-lock.json}. Pemeriksaan gaya kode pada job \texttt{lint} memakai ESLint \cite{eslint-docs}. Job \texttt{build} mengunggah direktori \texttt{frontend/dist} sebagai artifact, dan job \texttt{deploy} mengunduh artifact itu tanpa menjalankan \texttt{npm run build} lagi.
 
 \begin{lstlisting}[style=yamlstyle,caption={Workflow empat job pada \texttt{frontend.yml}.}]
 name: Frontend
