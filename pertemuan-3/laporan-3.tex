@@ -15,6 +15,8 @@
 \usepackage{bookmark}
 \usepackage{booktabs}
 \usepackage{caption}
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes.geometric,arrows.meta,decorations.pathreplacing}
 
 \setmainfont{TeX Gyre Termes}
 \onehalfspacing
@@ -173,8 +175,90 @@ Sesuai arahan pada pertemuan ketiga dan deskripsi tugas di Google Classroom \tex
 \section{Continuous Deployment dan Perbedaannya dengan Continuous Integration}
 Continuous Integration (CI) memverifikasi setiap perubahan secara otomatis, sedangkan Continuous Deployment (CD) melanjutkan langkah itu sampai perubahan benar-benar terpasang di server \cite{fowler-ci,humble2010}. Pertemuan sebelumnya berhenti di tahap CI: kode diuji dan gaya kodenya diperiksa, lalu selesai. Pertemuan ini menambah tahap setelahnya, yaitu \texttt{staging} dan \texttt{production}, sehingga pipeline menyerupai alur rilis yang sebenarnya.
 
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        font=\footnotesize,
+        kotak/.style={draw, rounded corners=2pt, align=center, minimum height=1cm, minimum width=2.05cm, inner sep=3pt, fill=white},
+        tahap/.style={kotak, fill=blue!8},
+        rilis/.style={kotak, fill=green!12},
+        panah/.style={-{Latex[length=2mm]}, thick, draw=black!70},
+        label/.style={font=\scriptsize\itshape, text=black!70},
+    ]
+
+    \node[label] at (0.0,1.35) {Developers};
+    \node[label] at (2.4,1.35) {Version Control};
+    \node[label] at (4.8,1.35) {Compile};
+    \node[label] at (7.2,1.35) {Auto Test};
+    \node[label] at (9.6,1.35) {Auto UI Test};
+
+    \node[tahap] (dev) at (0.0,0.5) {Kode\\dari\\developer};
+    \node[tahap] (vc)  at (2.4,0.5) {Git\\commit};
+    \node[tahap] (cmp) at (4.8,0.5) {Build\\aplikasi};
+    \node[tahap] (tst) at (7.2,0.5) {Unit test\\otomatis};
+    \node[tahap] (ui)  at (9.6,0.5) {UI test\\otomatis};
+
+    \draw[panah] (dev) -- (vc);
+    \draw[panah] (vc) -- (cmp);
+    \draw[panah] (cmp) -- (tst);
+    \draw[panah] (tst) -- (ui);
+
+    \draw[thick, decorate, decoration={brace, amplitude=6pt, mirror}]
+        (-1.15,-0.12) -- (10.75,-0.12);
+    \node[label] at (4.8,-0.55) {Continuous Integration};
+
+    \draw[panah] (ui.south) -- ++(0,-0.9) -| (6.4,-1.85);
+    \node[label, align=center] at (8.7,-1.45) {kemas hasil build\\beserta instruksi};
+
+    \node[rilis] (stg) at (6.4,-2.6) {Deploy\\staging};
+    \node[rilis] (acc) at (3.9,-2.6) {Uji\\penerimaan};
+    \node[rilis] (prd) at (1.4,-2.6) {Rilis ke\\pengguna};
+
+    \draw[panah] (stg) -- (acc);
+    \draw[panah] (acc) -- (prd);
+
+    \draw[thick, decorate, decoration={brace, amplitude=6pt, mirror}]
+        (-0.15,-3.25) -- (7.9,-3.25);
+    \node[label] at (3.9,-3.68) {Continuous Delivery};
+
+    \end{tikzpicture}
+    \caption{Alur CI/CD: tahap \textit{continuous integration} berhenti setelah pengujian otomatis, lalu \textit{continuous delivery} melanjutkan sampai rilis ke pengguna.}
+    \label{fig:ci-cd}
+\end{figure}
+
 \section{Pipeline Bertahap dengan \texttt{needs:}}
 GitHub Actions menjalankan setiap job di mesin yang bersih, sehingga tiap job harus menyiapkan ulang apa yang dibutuhkannya \cite{github-actions}. Kata kunci \texttt{needs:} membuat sebuah job menunggu job lain selesai lebih dulu \cite{github-needs}. Kalau job yang ditunggu gagal, job setelahnya tidak dijalankan sama sekali dan statusnya menjadi \textit{skipped}. Sifat inilah yang dipakai untuk menghentikan deploy ketika pengujian gagal.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        font=\footnotesize,
+        job/.style={draw, rounded corners=2pt, align=center, minimum height=0.9cm, minimum width=2.1cm, fill=blue!8},
+        gagal/.style={job, fill=red!12},
+        panah/.style={-{Latex[length=2mm]}, thick, draw=black!70},
+        putus/.style={-{Latex[length=2mm]}, thick, draw=red!70, dashed},
+        label/.style={font=\scriptsize, text=black!70},
+    ]
+    \node[job] (b) at (0,0) {build};
+    \node[job] (t) at (2.9,0) {test};
+    \node[job] (s) at (5.8,0) {staging};
+    \node[job] (p) at (8.7,0) {production};
+
+    \draw[panah] (b) -- (t);
+    \draw[panah] (t) -- (s);
+    \draw[panah] (s) -- (p);
+    \node[label, above=1pt of b] {\texttt{needs:}};
+    \node[label, above=1pt of t] {\texttt{needs: build}};
+    \node[label, above=1pt of s] {\texttt{needs: test}};
+    \node[label, above=1pt of p] {\texttt{needs: staging}};
+
+    \node[gagal] (t2) at (2.9,-1.5) {test gagal};
+    \draw[putus] (t2) -- (t);
+    \node[label, right=3pt of t2, align=left] {job setelahnya\\otomatis \textit{skipped}};
+    \end{tikzpicture}
+    \caption{Job dirangkai berurutan dengan \texttt{needs:}. Ketika satu job gagal, job setelahnya tidak dijalankan.}
+    \label{fig:dag}
+\end{figure}
 
 \begin{figure}[H]
     \centering
@@ -186,11 +270,87 @@ GitHub Actions menjalankan setiap job di mesin yang bersih, sehingga tiap job ha
 \section{Environment dan Required Reviewer}
 \textit{Environment} pada GitHub Actions adalah wadah berisi variabel dan aturan perlindungan untuk satu tujuan deploy \cite{github-environments}. Ketika sebuah job memakai \texttt{environment: production} dan environment tersebut punya \textit{required reviewer}, job berhenti di status \textit{waiting} sampai ada orang yang menyetujui. Cara ini membuat deploy ke produksi tidak pernah berjalan sendiri tanpa sepengetahuan pemilik proyek.
 
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        font=\footnotesize,
+        kotak/.style={draw, rounded corners=2pt, align=center, minimum height=0.9cm, minimum width=2.6cm, inner sep=3pt, fill=white},
+        panah/.style={-{Latex[length=2mm]}, thick, draw=black!70},
+        label/.style={font=\scriptsize, text=black!70},
+    ]
+    \node[kotak, fill=blue!8] (push) at (0,0) {push ke\\\texttt{main}};
+    \node[kotak, fill=blue!8] (job) at (3.6,0) {job\\production};
+    \node[kotak, fill=yellow!20] (env) at (7.2,0) {environment\\production};
+    \node[kotak, fill=green!14] (ok) at (10.8,0) {deploy\\jalan};
+
+    \draw[panah] (push) -- (job);
+    \draw[panah] (job) -- (env);
+    \draw[panah] (env) -- node[label, above, align=center] {disetujui\\reviewer} (ok);
+
+    \node[label, below=7pt of env, align=center] {berhenti di status\\\textit{waiting}};
+
+    \node[kotak, fill=red!12] (fe) at (3.6,-2.3) {push ke\\branch fitur};
+    \draw[panah, draw=red!70, dashed] (fe) -- (job);
+    \node[label, right=3pt of fe, align=left] {job \texttt{production}\\\textit{skipped}};
+    \end{tikzpicture}
+    \caption{Job \texttt{production} hanya berjalan dari \texttt{main} dan menunggu persetujuan \textit{reviewer} pada environment. Push ke branch fitur melewatinya.}
+    \label{fig:env-flow}
+\end{figure}
+
 \section{Urutan Langkah Deploy Laravel}
 Deploy aplikasi Laravel di server mengikuti urutan yang tidak boleh ditukar \cite{laravel-docs}. Aplikasi ditutup dulu dengan \texttt{php artisan down}, kode terbaru ditarik, dependensi produksi dipasang tanpa paket pengembangan, migrasi basis data dijalankan, cache dibangun ulang, pekerja antrean dimuat ulang, lalu aplikasi dibuka kembali dengan \texttt{php artisan up}. Baris \texttt{set -e} di awal skrip penting karena tanpa itu skrip akan terus berjalan walaupun satu perintah gagal, dan aplikasi bisa terbuka dalam keadaan rusak \cite{stauffer2023}.
 
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        font=\scriptsize,
+        tahap/.style={draw, rounded corners=2pt, align=center, minimum height=0.85cm, minimum width=1.6cm, inner sep=1.5pt, fill=blue!8},
+        panah/.style={-{Latex[length=1.6mm]}, thick, draw=black!70},
+        label/.style={font=\tiny, text=black!65},
+    ]
+    \node[tahap] (d) at (0,0) {artisan\\down};
+    \node[tahap] (g) at (2.05,0) {git pull\\origin main};
+    \node[tahap] (c) at (4.10,0) {composer\\install};
+    \node[tahap] (m) at (6.15,0) {artisan\\migrate};
+    \node[tahap] (k) at (8.20,0) {cache\\config};
+    \node[tahap] (q) at (10.25,0) {queue\\restart};
+    \node[tahap] (u) at (12.30,0) {artisan\\up};
+
+    \draw[panah] (d) -- (g);
+    \draw[panah] (g) -- (c);
+    \draw[panah] (c) -- (m);
+    \draw[panah] (m) -- (k);
+    \draw[panah] (k) -- (q);
+    \draw[panah] (q) -- (u);
+
+    \node[label, below=1pt of d] {aplikasi ditutup};
+    \node[label, below=1pt of u] {aplikasi dibuka};
+    \end{tikzpicture}
+    \caption{Urutan langkah deploy: aplikasi ditutup lebih dulu, kode dan dependensi diperbarui, lalu aplikasi dibuka kembali.}
+    \label{fig:deploy-order}
+\end{figure}
+
 \section{Artefak Antar Job}
 Karena setiap job mulai dari mesin kosong, hasil pekerjaan satu job perlu diteruskan ke job berikutnya. \texttt{actions/upload-artifact} dan \texttt{actions/download-artifact} dipakai untuk memindahkan berkas antar job \cite{github-artifacts}. Pada praktikum ini direktori \texttt{vendor} hasil \texttt{composer install} di job \texttt{build} diunggah sebagai artefak, lalu diunduh oleh job \texttt{test}, sehingga pemasangan dependensi cukup dilakukan sekali.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        font=\footnotesize,
+        kotak/.style={draw, rounded corners=2pt, align=center, minimum height=0.9cm, minimum width=2.5cm, inner sep=3pt, fill=white},
+        panah/.style={-{Latex[length=2mm]}, thick, draw=black!70},
+        label/.style={font=\scriptsize, text=black!70},
+    ]
+    \node[kotak, fill=blue!8] (b) at (0,0) {job build\\\texttt{composer install}};
+    \node[kotak, fill=orange!15] (a) at (5.6,0) {artifact\\\texttt{vendor}};
+    \node[kotak, fill=blue!8] (t) at (11.2,0) {job test\\\texttt{php artisan test}};
+
+    \draw[panah] (b) -- node[label, above, pos=0.5] {\texttt{upload-artifact}} (a);
+    \draw[panah] (a) -- node[label, above, pos=0.5] {\texttt{download-artifact}} (t);
+    \end{tikzpicture}
+    \caption{Direktori \texttt{vendor} hasil job \texttt{build} dipindahkan lewat artifact, lalu dipakai job \texttt{test}. Pemasangan dependensi cukup sekali.}
+    \label{fig:artifact-flow}
+\end{figure}
 
 \begin{figure}[H]
     \centering

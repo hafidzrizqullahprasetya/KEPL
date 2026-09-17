@@ -15,6 +15,8 @@
 \usepackage{bookmark}
 \usepackage{booktabs}
 \usepackage{caption}
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes.geometric,arrows.meta,decorations.pathreplacing}
 
 \setmainfont{TeX Gyre Termes}
 \onehalfspacing
@@ -187,17 +189,127 @@ Sesuai arahan pada pertemuan keempat dan deskripsi tugas di Google Classroom \te
 \section{Single Page Application dan Vue 3}
 Vue 3 adalah kerangka kerja JavaScript untuk membangun antarmuka yang reaktif \cite{vue-docs}. Pada aplikasi satu halaman, perpindahan antar halaman tidak memuat ulang dokumen, melainkan ditangani oleh \textit{router} di sisi klien. Vue Router memetakan alamat ke komponen sehingga satu berkas HTML dapat melayani beberapa halaman \cite{vue-router}.
 
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        font=\footnotesize,
+        kotak/.style={draw, rounded corners=2pt, align=center, minimum height=0.95cm, minimum width=3.0cm, inner sep=3pt, fill=white},
+        panah/.style={-{Latex[length=2mm]}, thick, draw=black!70},
+        label/.style={font=\scriptsize, text=black!70},
+    ]
+    \node[kotak, fill=blue!8] (browser) at (0,0) {peramban\\satu dokumen HTML};
+    \node[kotak, fill=green!12] (router) at (4.8,0) {Vue Router\\memilih komponen};
+    \node[kotak, fill=green!12] (v1) at (9.8,1.05) {Halaman\\Daftar Tugas};
+    \node[kotak, fill=green!12] (v2) at (9.8,-1.05) {Halaman\\Tentang};
+
+    \draw[panah] (browser) -- (router);
+    \draw[panah] (router) -- (v1);
+    \draw[panah] (router) -- (v2);
+    \node[label, below=1pt of v1] {rute \texttt{/}};
+    \node[label, above=1pt of v2] {rute \texttt{/tentang}};
+    \end{tikzpicture}
+    \caption{Pada aplikasi satu halaman, Vue Router memetakan alamat ke komponen tanpa memuat ulang dokumen.}
+    \label{fig:spa}
+\end{figure}
+
 \section{Memisahkan Alamat API dari Kode}
 Menuliskan alamat API langsung di dalam kode menyulitkan perpindahan antara lingkungan lokal dan produksi. Vite menyediakan variabel lingkungan berawalan \texttt{VITE\_} yang dibaca saat build dan diakses lewat \texttt{import.meta.env} \cite{vite-env}. Dengan pola ini, alamat backend cukup diganti di berkas \texttt{.env} tanpa mengubah kode sumber.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        font=\footnotesize,
+        kotak/.style={draw, rounded corners=2pt, align=center, minimum height=0.9cm, minimum width=3.0cm, inner sep=3pt, fill=white},
+        panah/.style={-{Latex[length=2mm]}, thick, draw=black!70},
+        label/.style={font=\scriptsize, text=black!70},
+    ]
+    \node[kotak, fill=yellow!18] (env) at (0,0) {\texttt{.env}\\VITE\_API\_URL};
+    \node[kotak, fill=blue!8] (kode) at (5.0,0) {kode Vue\\\texttt{import.meta.env}};
+    \node[kotak, fill=green!12] (api) at (10.0,0) {backend Laravel\\\texttt{/api/tugas}};
+
+    \draw[panah] (env) -- node[label, above] {dibaca saat build} (kode);
+    \draw[panah] (kode) -- node[label, above] {permintaan data} (api);
+    \end{tikzpicture}
+    \caption{Alamat API diambil dari berkas \texttt{.env}, sehingga alamat backend bisa diganti tanpa mengubah kode.}
+    \label{fig:env-api}
+\end{figure}
 
 \section{CORS pada API Laravel}
 CORS mengatur izin akses lintas domain di peramban \cite{mdn-cors}. Ketika aplikasi Vue dijalankan di \texttt{localhost:5173} dan API berada di \texttt{127.0.0.1:8001}, keduanya dianggap domain berbeda. Laravel mengatur izin itu lewat berkas \texttt{config/cors.php} yang menentukan jalur, metode, dan asal yang diizinkan \cite{laravel-cors}.
 
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        font=\footnotesize,
+        kotak/.style={draw, rounded corners=2pt, align=center, minimum height=0.95cm, minimum width=3.3cm, inner sep=3pt, fill=white},
+        panah/.style={-{Latex[length=2mm]}, thick, draw=black!70},
+        label/.style={font=\scriptsize, text=black!70},
+    ]
+    \node[kotak, fill=blue!8] (vue) at (0,0) {aplikasi Vue\\\texttt{localhost:5173}};
+    \node[kotak, fill=green!12] (api) at (6.2,0) {API Laravel\\\texttt{127.0.0.1:8001}};
+
+    \draw[panah] (vue) -- node[label, above, align=center] {\textit{preflight}\\OPTIONS} (api);
+    \draw[panah] (api) -- node[label, below, align=center] {\texttt{Access-Control-}\\ \texttt{Allow-Origin: *}} (vue);
+    \end{tikzpicture}
+    \caption{Peramban mengirim permintaan \textit{preflight} sebelum mengambil data. Server menjawab dengan header izin CORS.}
+    \label{fig:cors-flow}
+\end{figure}
+
 \section{Pipeline Frontend Empat Job}
 Workflow frontend mengikuti pola yang sama dengan pipeline backend: setiap job berjalan di mesin bersih dan dirangkai memakai \texttt{needs:} \cite{github-actions}. Pemasangan dependensi memakai \texttt{npm ci} agar versi paket persis mengikuti \texttt{package-lock.json}, dan cache \texttt{npm} mempercepat pemasangan pada job berikutnya \cite{github-node}. Hasil \texttt{npm run build} diunggah sebagai artifact, lalu diunduh job deploy. Karena artifact sudah berisi direktori \texttt{dist}, job deploy tidak perlu menjalankan \texttt{npm run build} lagi \cite{github-artifacts}.
 
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        font=\footnotesize,
+        job/.style={draw, rounded corners=2pt, align=center, minimum height=0.9cm, minimum width=2.1cm, fill=blue!8},
+        panah/.style={-{Latex[length=2mm]}, thick, draw=black!70},
+        putus/.style={-{Latex[length=2mm]}, thick, draw=red!70, dashed},
+        label/.style={font=\scriptsize, text=black!70},
+    ]
+    \node[job] (l) at (0,0) {lint};
+    \node[job] (t) at (2.9,0) {test};
+    \node[job] (b) at (5.8,0) {build};
+    \node[job] (d) at (8.7,0) {deploy};
+
+    \draw[panah] (l) -- (t);
+    \draw[panah] (t) -- (b);
+    \draw[panah] (b) -- (d);
+    \node[label, above=1pt of l] {\texttt{needs:}};
+    \node[label, above=1pt of t] {\texttt{needs: lint}};
+    \node[label, above=1pt of b] {\texttt{needs: test}};
+    \node[label, above=1pt of d] {\texttt{needs: build}};
+
+    \node[label, below=3pt of b] {artifact \texttt{dist}};
+    \node[label, below=3pt of d] {tanpa build ulang};
+    \end{tikzpicture}
+    \caption{Empat job frontend dirangkai berurutan. Hasil build dioper ke job \texttt{deploy} lewat artifact.}
+    \label{fig:fe-jobs}
+\end{figure}
+
 \section{Pengujian Unit dengan Vitest}
 Vitest menjalankan pengujian unit untuk proyek Vite \cite{vitest-docs}. Karena pengujian dijalankan di lingkungan Node tanpa backend, logika yang diuji harus mandiri dan tidak bergantung pada Laravel. Pada praktikum ini saya memisahkan logika pemformatan dan peringkasan ke berkas \texttt{src/lib/format.js} supaya dapat diuji tanpa menjalankan server.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        font=\footnotesize,
+        level/.style={draw, rounded corners=2pt, align=center, minimum height=0.85cm, fill=white},
+        panah/.style={-{Latex[length=2mm]}, thick, draw=black!70},
+        label/.style={font=\scriptsize, text=black!70},
+    ]
+    \node[level, fill=red!12, minimum width=3.2cm] (ui) at (0,2.4) {UI / end-to-end};
+    \node[level, fill=yellow!20, minimum width=4.6cm] (int) at (0,1.2) {integration};
+    \node[level, fill=green!16, minimum width=6.0cm] (unit) at (0,0) {unit test (Vitest)};
+
+    \draw[panah] (unit) -- (int);
+    \draw[panah] (int) -- (ui);
+    \node[label, right=4pt of unit, align=left] {paling banyak,\\paling cepat};
+    \node[label, right=4pt of ui, align=left] {paling sedikit,\\paling lambat};
+    \end{tikzpicture}
+    \caption{Piramida pengujian: unit test berada di lapisan terbawah dan paling banyak jumlahnya. Vitest dipakai pada lapisan ini.}
+    \label{fig:test-pyramid}
+\end{figure}
 
 \clearpage
 
