@@ -422,9 +422,6 @@ gh run view 35202565338 --json jobs --jq '.jobs[] | "\(.name): \(.conclusion)"'
 
 Setelah bukti itu tersimpan, saya mengembalikan nilai harapan ke 2 dan push lagi. Pipeline kembali hijau pada commit berikutnya.
 
-\section{Kendala yang Ditemui}
-Ada beberapa kendala yang saya temui. Pengujian Vitest tidak boleh bergantung pada backend, sehingga logika yang diuji harus saya pisahkan dulu ke berkas tersendiri; kalau tidak, test akan gagal di GitHub Actions karena Laravel tidak berjalan di sana. Direktori \texttt{dist} hasil build juga harus dioper lewat artifact, karena job \texttt{deploy} tidak menjalankan build. Jalur cache \texttt{npm} pun perlu diarahkan ke \texttt{frontend/package-lock.json} karena berkas kunci berada di subfolder, bukan di akar repository.
-
 \clearpage
 
 \chapter{Kesimpulan}
