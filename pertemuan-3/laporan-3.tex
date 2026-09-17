@@ -349,7 +349,7 @@ gh run view 35198706661 --json jobs --jq '.jobs[] | "\(.name): \(.conclusion)"'
 Supaya deploy ke produksi menunggu persetujuan, saya membuat environment bernama \texttt{production} dan menambahkan diri sendiri sebagai \textit{required reviewer}. Verifikasi lewat API menunjukkan environment tersebut beserta reviewernya:
 
 \begin{lstlisting}[style=bashstyle,caption={Verifikasi environment production dan reviewernya.}]
-gh api repos/.../environments/production \
+gh api repos/hafidzrizqullahprasetya/evolusi-pl-535493/environments/production \
   --jq '{name, reviewers: [.protection_rules[].reviewers[].reviewer.login]}'
 # {"name":"production","reviewers":["hafidzrizqullahprasetya"]}
 \end{lstlisting}
