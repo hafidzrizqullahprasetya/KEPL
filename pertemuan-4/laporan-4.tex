@@ -303,25 +303,110 @@ Nilai variabelnya dicatat pada \texttt{frontend/.env.example} sebagai \texttt{VI
 \section{Workflow Frontend Empat Job}
 Workflow \texttt{.github/workflows/frontend.yml} berisi empat job berurutan: \texttt{lint}, \texttt{test}, \texttt{build}, dan \texttt{deploy}. Job \texttt{lint} dan \texttt{test} memakai \texttt{npm ci} dengan cache \texttt{npm} yang diarahkan ke \texttt{frontend/package-lock.json}. Job \texttt{build} mengunggah direktori \texttt{frontend/dist} sebagai artifact, dan job \texttt{deploy} mengunduh artifact itu tanpa menjalankan \texttt{npm run build} lagi.
 
-\begin{lstlisting}[style=yamlstyle,caption={Kerangka empat job frontend.}]
+\begin{lstlisting}[style=yamlstyle,caption={Workflow empat job pada \texttt{frontend.yml}.}]
+name: Frontend
+
+on:
+  push:
+    branches: ['**']
+    paths: ['frontend/**', '.github/workflows/frontend.yml']
+  pull_request:
+    paths: ['frontend/**', '.github/workflows/frontend.yml']
+
 jobs:
   lint:
     name: Lint
-    ...
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ambil kode
+        uses: actions/checkout@v4
+
+      - name: Siapkan Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Pasang dependensi
+        working-directory: frontend
+        run: npm ci
+
+      - name: Periksa gaya kode
+        working-directory: frontend
+        run: npm run lint
+
   test:
     name: Test
     needs: lint
-    ...
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ambil kode
+        uses: actions/checkout@v4
+
+      - name: Siapkan Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Pasang dependensi
+        working-directory: frontend
+        run: npm ci
+
+      - name: Jalankan pengujian
+        working-directory: frontend
+        run: npm test
+
   build:
     name: Build
     needs: test
-    ...
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ambil kode
+        uses: actions/checkout@v4
+
+      - name: Siapkan Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Pasang dependensi
+        working-directory: frontend
+        run: npm ci
+
+      - name: Bangun aplikasi
+        working-directory: frontend
+        run: npm run build
+
+      - name: Simpan hasil build
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: frontend/dist
+          retention-days: 1
+
   deploy:
     name: Deploy
     needs: build
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
     environment: production
-    ...
+    steps:
+      - name: Ambil hasil build
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Tampilkan isi dist
+        run: |
+          ls -R dist
+          echo "--- isi index.html ---"
+          cat dist/index.html
 \end{lstlisting}
 
 Pada run terakhir di \texttt{main}, keempat job hijau setelah deploy produksi disetujui:
