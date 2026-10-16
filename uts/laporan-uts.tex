@@ -438,7 +438,7 @@ Bukti eksekusi alur kerja pada Pull Request cabang \texttt{dev} ditunjukkan pada
 Nilai konfigurasi sensitif seperti \texttt{APP\_KEY} dan \texttt{DB\_PASSWORD} disimpan pada menu \textit{Settings} $\rightarrow$ \textit{Secrets and variables} $\rightarrow$ \textit{Actions} di repositori GitHub. Variabel ini disuntikkan ke dalam instruksi pembangunan kontainer sebagai argumen pembangun (\textit{build-args}) tanpa pernah tersimpan secara terbuka pada repositori publik.
 
 \subsection{Tag Citra Berdasarkan Commit SHA dan Registri GHCR}
-Pekerjaan penerapan melakukan otentikasi ke \texttt{ghcr.io} menggunakan token bawaan \texttt{GITHUB\_TOKEN} dengan izin \texttt{packages: write}. Citra kontainer backend dan frontend dibangun dan diunggah dengan tag yang merujuk pada hash commit penuh (\texttt{\$\{\{ github.sha \}\}}), bukan tag \texttt{latest}. Hal ini menjamin ketertelusuran artefak rilis dengan versi kode sumber yang menyusunnya.
+Pekerjaan penerapan melakukan otentikasi ke \texttt{ghcr.io} menggunakan token bawaan \texttt{GITHUB\_TOKEN} dengan izin \texttt{packages: write}. Citra kontainer backend dan frontend dibangun dan diunggah dengan tag yang merujuk pada hash commit penuh (\texttt{\$\{\{ github.sha \}\}}), bukan tag \texttt{latest}. Pemberian tag unik tersebut menjamin ketertelusuran artefak rilis dengan versi kode sumber yang menyusunnya.
 
 Gambar \ref{fig:actions-main-deploy} memperlihatkan eksekusi alur kerja pada cabang \texttt{main} yang berhasil menyelesaikan seluruh pekerjaan secara berurutan dengan status hijau sempurna.
 
