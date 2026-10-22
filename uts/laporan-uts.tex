@@ -82,6 +82,22 @@
     keywordstyle=\color{darkblue},
     stringstyle=\color{codepurple}
 }
+\lstdefinelanguage{JavaScript}{
+    keywords={async,await,break,case,catch,class,const,continue,debugger,default,delete,do,else,export,extends,false,finally,for,function,if,import,in,instanceof,let,new,null,of,return,super,switch,this,throw,true,try,typeof,var,void,while,yield},
+    sensitive=true,
+    comment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    morestring=[b]',
+    morestring=[b]",
+    morestring=[b]`
+}
+\lstdefinestyle{jsstyle}{
+    style=commonstyle,
+    language=JavaScript,
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{darkblue},
+    stringstyle=\color{codepurple}
+}
 
 \newcommand{\customfbox}[1]{%
   \setlength{\fboxsep}{0pt}%
@@ -229,7 +245,7 @@ Penyusunan berkas \textit{Dockerfile} yang efisien memanfaatkan prinsip pengurut
 Pengerjaan soal nomor 1 difokuskan pada perancangan dan implementasi layanan RESTful API menggunakan kerangka kerja Laravel dengan tema Sistem Manajemen Aset Laboratorium. Sistem ini menangani inventaris peralatan komputasi, perangkat jaringan, dan instrumen laboratorium di lingkungan Departemen Teknik Elektro dan Informatika Sekolah Vokasi UGM.
 
 \subsection{Perancangan Skema Data dan Model}
-Sumber daya utama pada backend adalah \texttt{Asset}. Tabel \texttt{assets} dirancang untuk menyimpan atribut nama perangkat, kode inventaris unik, kategori, status operasional, nilai perolehan, dan lokasi laboratorium. Struktur migrasi basis data ditunjukkan pada Listing \ref{lst:migration-asset}.
+Sumber daya utama pada backend adalah \texttt{Asset}. Tabel \texttt{assets} dirancang untuk menyimpan atribut nama perangkat, kode inventaris unik, kategori, status operasional, nilai perolehan, dan lokasi laboratorium. Bentuk migrasinya tercantum pada Listing \ref{lst:migration-asset}.
 
 \begin{lstlisting}[style=phpstyle,caption={Migrasi skema tabel assets pada backend Laravel.},label={lst:migration-asset}]
 Schema::create('assets', function (Blueprint $table) {
@@ -263,7 +279,7 @@ Operasi data pada \texttt{AssetController} mengembalikan kode status HTTP standa
 \subsection{Koleksi Postman dan Pengujian Otomatis}
 Seluruh rute API telah diuji menggunakan koleksi Postman yang diekspor ke dalam repositori pada berkas \texttt{backend/postman/uts\_kepl\_asset\_api.postman\_collection.json}. Koleksi ini mencakup skrip uji otomatis yang menyimpan token sesi ke variabel koleksi secara instan setelah panggilan login berhasil.
 
-Keandalan backend diverifikasi secara terotomatisasi melalui berkas pengujian fitur (\textit{Feature Tests}) pada \texttt{tests/Feature/AuthApiTest.php} dan \texttt{tests/Feature/AssetApiTest.php}. Seluruh 13 pengujian dengan 47 asersi berhasil lulus secara sempurna, disertai verifikasi kerapian kode menggunakan Laravel Pint, sebagaimana ditunjukkan pada Gambar \ref{fig:feature-tests}.
+Keandalan backend diverifikasi secara terotomatisasi melalui berkas pengujian fitur (\textit{Feature Tests}) pada \texttt{tests/Feature/AuthApiTest.php} dan \texttt{tests/Feature/AssetApiTest.php}. Ketiga belas pengujian dengan 47 asersi lulus seluruhnya, dan pemeriksaan gaya kode Laravel Pint juga bersih. Keluaran kedua perintah tersebut dapat dilihat pada Gambar \ref{fig:feature-tests}.
 
 \begin{figure}[htbp]
     \centering
@@ -272,7 +288,7 @@ Keandalan backend diverifikasi secara terotomatisasi melalui berkas pengujian fi
     \label{fig:feature-tests}
 \end{figure}
 
-Verifikasi kepatuhan seluruh kode status HTTP secara langsung melalui skrip pengujian terminal Linux ditampilkan pada Gambar \ref{fig:api-status-codes}.
+Kepatuhan kode status HTTP diuji langsung melalui klien API pada terminal Linux; empat respons yang diharapkan muncul berurutan pada Gambar \ref{fig:api-status-codes}.
 
 \begin{figure}[htbp]
     \centering
@@ -285,9 +301,9 @@ Verifikasi kepatuhan seluruh kode status HTTP secara langsung melalui skrip peng
 Pengerjaan soal nomor 2 mencakup pembangunan antarmuka web modern menggunakan Vue.js 3, bundler Vite, dan pustaka HTTP Axios.
 
 \subsection{Konfigurasi Variabel Lingkungan}
-Untuk memenuhi ketentuan soal 2.c, alamat basis API tidak ditulis mati di dalam kode komponen. Alamat tersebut dikonfigurasi melalui berkas \texttt{.env} dan diakses melalui \texttt{import.meta.env.VITE\_API\_BASE\_URL}, seperti ditunjukkan pada Listing \ref{lst:vue-api-client}.
+Untuk memenuhi ketentuan soal 2.c, alamat basis API tidak ditulis mati di dalam kode komponen. Alamat tersebut dikonfigurasi melalui berkas \texttt{.env} dan diakses melalui \texttt{import.meta.env.VITE\_API\_BASE\_URL}, dengan konfigurasi seperti pada Listing \ref{lst:vue-api-client}.
 
-\begin{lstlisting}[style=bashstyle,caption={Konfigurasi klien Axios dengan pembacaan variabel lingkungan.},label={lst:vue-api-client}]
+\begin{lstlisting}[style=jsstyle,caption={Konfigurasi klien Axios dengan pembacaan variabel lingkungan.},label={lst:vue-api-client}]
 import axios from 'axios';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
@@ -340,7 +356,7 @@ Saat pengguna membuka aplikasi, sistem memeriksa ketersediaan sesi di penyimpana
 Ketika formulir dikirimkan, token yang diterima dari backend disimpan ke dalam \texttt{localStorage} dengan kunci \texttt{auth\_token}. Pencegat Axios secara otomatis menyertakan token ini pada tajuk otentikasi di setiap permintaan berikutnya.
 
 \subsection{Dasbor Metrik dan Operasi CRUD Aset}
-Setelah otentikasi berhasil, pengguna diarahkan ke dasbor utama. Dasbor menampilkan kartu metrik ringkasan inventaris, kolom pencarian teks, filter status, serta tabel daftar aset lengkap. Tampilan dasbor disajikan pada Gambar \ref{fig:vue-dashboard}.
+Setelah otentikasi berhasil, pengguna diarahkan ke dasbor utama. Dasbor menampilkan kartu metrik ringkasan inventaris, kolom pencarian teks, filter status, serta tabel daftar aset lengkap. Bentuk akhir dasbor dapat dilihat pada Gambar \ref{fig:vue-dashboard}.
 
 \begin{figure}[htbp]
     \centering
@@ -349,7 +365,7 @@ Setelah otentikasi berhasil, pengguna diarahkan ke dasbor utama. Dasbor menampil
     \label{fig:vue-dashboard}
 \end{figure}
 
-Penambahan aset baru dilakukan melalui jendela modal interaktif. Modal ini mengirimkan data ke endpoint \texttt{POST /api/assets}. Ketika peladen merespons dengan status 201 Created, daftar aset pada tabel langsung diperbarui secara reaktif tanpa perlu memuat ulang peramban. Tampilan modal penambahan aset ditunjukkan pada Gambar \ref{fig:vue-modal-tambah}.
+Penambahan aset baru dilakukan melalui jendela modal interaktif. Modal ini mengirimkan data ke endpoint \texttt{POST /api/assets}. Ketika peladen merespons dengan status 201 Created, daftar aset pada tabel langsung diperbarui secara reaktif tanpa perlu memuat ulang peramban. Gambar \ref{fig:vue-modal-tambah} memperlihatkan modal tersebut ketika sedang diisi.
 
 \begin{figure}[htbp]
     \centering
@@ -369,7 +385,7 @@ Repositori diatur dengan tiga tingkatan cabang:
     \item \texttt{feat/backend-and-frontend}: Cabang fitur untuk pengembangan modul backend dan frontend.
 \end{enumerate}
 
-Seluruh perubahan kode dari cabang fitur diintegrasikan ke cabang \texttt{dev} melalui Pull Request nomor 1. Setelah diverifikasi lulus oleh pengujian CI, cabang \texttt{dev} digabungkan ke cabang \texttt{main} melalui Pull Request nomor 2. Riwayat komit dan pohon percabangan pada terminal Linux ditampilkan pada Gambar \ref{fig:git-workflow}.
+Seluruh perubahan kode dari cabang fitur diintegrasikan ke cabang \texttt{dev} melalui Pull Request nomor 1. Setelah diverifikasi lulus oleh pengujian CI, cabang \texttt{dev} digabungkan ke cabang \texttt{main} melalui Pull Request nomor 2. Gambar \ref{fig:git-workflow} memuat riwayat komit beserta pohon percabangannya dari terminal Linux.
 
 \begin{figure}[htbp]
     \centering
@@ -378,7 +394,7 @@ Seluruh perubahan kode dari cabang fitur diintegrasikan ke cabang \texttt{dev} m
     \label{fig:git-workflow}
 \end{figure}
 
-Tampilan beranda repositori publik di GitHub disajikan pada Gambar \ref{fig:repo-github}, yang memperlihatkan struktur direktori \texttt{backend/} dan \texttt{frontend/} yang terkelola rapi.
+Beranda repositori publik tersebut, termasuk struktur direktori \texttt{backend/} dan \texttt{frontend/}, tampak pada Gambar \ref{fig:repo-github}.
 
 \begin{figure}[htbp]
     \centering
@@ -395,7 +411,7 @@ Cabang \texttt{main} dan \texttt{dev} diproteksi untuk menolak pengunggahan lang
     \item Opsi sinkronisasi cabang mutakhir (\textit{strict check}) aktif.
 \end{enumerate}
 
-Bukti pengaturan Branch Protection Rules pada antarmuka GitHub ditunjukkan pada Gambar \ref{fig:branch-protection}.
+Gambar \ref{fig:branch-protection} menampilkan dua aturan proteksi yang aktif pada antarmuka GitHub.
 
 \begin{figure}[htbp]
     \centering
@@ -403,6 +419,22 @@ Bukti pengaturan Branch Protection Rules pada antarmuka GitHub ditunjukkan pada 
     \caption{Pengaturan Branch Protection Rules untuk cabang \texttt{main} dan \texttt{dev} pada repositori GitHub.}
     \label{fig:branch-protection}
 \end{figure}
+
+Konfigurasi tersebut juga diperiksa langsung melalui GitHub CLI agar isinya tidak bergantung pada tampilan antarmuka. Keluarannya menegaskan bahwa pemeriksaan status bersifat ketat (\textit{strict}) dan mencakup kedua pekerjaan CI, sementara pengunggahan paksa maupun penghapusan cabang ditolak (Listing \ref{lst:branch-protection-api}).
+
+\begin{lstlisting}[style=bashstyle,caption={Verifikasi konfigurasi proteksi cabang main melalui GitHub CLI.},label={lst:branch-protection-api}]
+$ gh api repos/hafidzrizqullahprasetya/uts-p1-535493/branches/main/protection \
+    --jq '{strict: .required_status_checks.strict,
+           checks: .required_status_checks.contexts,
+           force_push: .allow_force_pushes.enabled,
+           deletion: .allow_deletions.enabled}'
+{
+  "strict": true,
+  "checks": ["Backend Test", "Frontend Build"],
+  "force_push": false,
+  "deletion": false
+}
+\end{lstlisting}
 
 \subsection{Pipeline Continuous Integration (CI)}
 Alur kerja integrasi berkelanjutan didefinisikan pada berkas \texttt{.github/workflows/ci.yml}. Berkas ini memuat dua pekerjaan pengujian yang berjalan secara paralel:
@@ -415,7 +447,7 @@ Alur kerja integrasi berkelanjutan didefinisikan pada berkas \texttt{.github/wor
 Soal nomor 4 mewajibkan penambahan pekerjaan penerapan (\textit{deploy job}) pada alur kerja GitHub Actions guna mempublikasikan citra kontainer ke GitHub Container Registry (\texttt{ghcr.io}).
 
 \subsection{Pembatasan Eksekusi Deploy pada Cabang Utama}
-Pekerjaan penerapan dikonfigurasi agar hanya berjalan saat terjadi peristiwa pengunggahan (\textit{push}) ke cabang \texttt{main}. Pada pengujian Pull Request atau cabang \texttt{dev}, pekerjaan deploy dilewati secara otomatis. Potongan logika eksekusi tersebut ditunjukkan pada Listing \ref{lst:deploy-job}.
+Pekerjaan penerapan dikonfigurasi agar hanya berjalan saat terjadi peristiwa pengunggahan (\textit{push}) ke cabang \texttt{main}. Pada pengujian Pull Request atau cabang \texttt{dev}, pekerjaan deploy dilewati secara otomatis. Potongan logika tersebut tertulis pada Listing \ref{lst:deploy-job}.
 
 \begin{lstlisting}[style=yamlstyle,caption={Konfigurasi bersyarat pada pekerjaan deploy di ci.yml.},label={lst:deploy-job}]
 deploy:
@@ -425,7 +457,7 @@ deploy:
   runs-on: ubuntu-latest
 \end{lstlisting}
 
-Bukti eksekusi alur kerja pada Pull Request cabang \texttt{dev} ditunjukkan pada Gambar \ref{fig:actions-pr-dev}, di mana pekerjaan pengujian backend dan kompilasi frontend berhasil diselesaikan, sedangkan pekerjaan deploy dilewati (\textit{skipped}).
+Eksekusi alur kerja untuk Pull Request cabang \texttt{dev} terekam pada Gambar \ref{fig:actions-pr-dev}: pekerjaan pengujian backend dan kompilasi frontend selesai dengan status hijau, sementara pekerjaan deploy dilewati (\textit{skipped}).
 
 \begin{figure}[htbp]
     \centering
@@ -449,7 +481,7 @@ Gambar \ref{fig:actions-main-deploy} memperlihatkan eksekusi alur kerja pada cab
     \label{fig:actions-main-deploy}
 \end{figure}
 
-Seluruh riwayat pengujian dan penerapan terangkum pada tab Actions repositori, sebagaimana disajikan pada Gambar \ref{fig:actions-tab}.
+Rekapitulasi semua eksekusi, baik pengujian maupun penerapan, tersedia pada tab Actions (Gambar \ref{fig:actions-tab}).
 
 \begin{figure}[htbp]
     \centering
@@ -458,20 +490,30 @@ Seluruh riwayat pengujian dan penerapan terangkum pada tab Actions repositori, s
     \label{fig:actions-tab}
 \end{figure}
 
-Hasil publikasi kedua citra kontainer pada GitHub Container Registry ditampilkan pada Gambar \ref{fig:packages-ghcr}. Kedua paket (\texttt{uts-p1-535493/backend} dan \texttt{uts-p1-535493/frontend}) terdaftar di bawah namespace repositori dan siap diunduh untuk kebutuhan operasional peladen.
+Kedua citra kontainer dipublikasikan pada GitHub Container Registry dengan visibilitas publik. Tab Packages repositori mendaftar tepat dua paket, yaitu \texttt{uts-p1-535493/backend} dan \texttt{uts-p1-535493/frontend} (Gambar \ref{fig:packages-ghcr}).
 
 \begin{figure}[htbp]
     \centering
     \customfbox{\includegraphics[width=0.95\linewidth,keepaspectratio]{images/ss-08-packages-ghcr.png}}
-    \caption{Halaman registri paket GitHub Container Registry memuat citra backend dan frontend ber-tag commit SHA.}
+    \caption{Daftar paket kontainer pada tab Packages repositori \texttt{uts-p1-535493}.}
     \label{fig:packages-ghcr}
+\end{figure}
+
+Masing-masing paket menyimpan beberapa versi yang dinamai menurut hash commit penyusunnya, bukan tag \texttt{latest}. Halaman detail paket backend dan frontend pada Gambar \ref{fig:ghcr-tags} memperlihatkan tag \texttt{f83fed0} dan \texttt{085dd03} beserta perintah \texttt{docker pull} yang dihasilkan GitHub, sehingga citra tertentu dapat ditelusuri kembali ke komit asalnya.
+
+\begin{figure}[htbp]
+    \centering
+    \customfbox{\includegraphics[width=0.93\linewidth,keepaspectratio]{images/ss-08b-ghcr-tags-backend.png}}\\[0.3cm]
+    \customfbox{\includegraphics[width=0.93\linewidth,keepaspectratio]{images/ss-08c-ghcr-tags-frontend.png}}
+    \caption{Halaman detail paket backend (atas) dan frontend (bawah) beserta tag commit SHA dan perintah pengunduhan citra.}
+    \label{fig:ghcr-tags}
 \end{figure}
 
 \section{Penyusunan Dockerfile Backend dan Frontend (CPMK 4 dan CPMK 5)}
 Soal nomor 5 menuntut penyusunan berkas \textit{Dockerfile} untuk backend dan frontend dengan standar optimasi kontainerisasi industri.
 
 \subsection{Dockerfile Backend dengan Optimasi Layer Caching}
-Berkas \texttt{backend/Dockerfile} menggunakan citra dasar resmi \texttt{php:8.4-cli-alpine} yang eksplisit dan bebas dari tag \texttt{latest}. Untuk memanfaatkan mekanisme \textit{cache} lapisan Docker secara optimal, berkas manifes dependensi \texttt{composer.json} dan \texttt{composer.lock} disalin terlebih dahulu, diikuti proses instalasi pustaka Composer. Kode sumber aplikasi baru disalin pada lapisan berikutnya, seperti disajikan pada Listing \ref{lst:dockerfile-backend}.
+Berkas \texttt{backend/Dockerfile} menggunakan citra dasar resmi \texttt{php:8.4-cli-alpine} yang eksplisit dan bebas dari tag \texttt{latest}. Untuk memanfaatkan mekanisme \textit{cache} lapisan Docker secara optimal, berkas manifes dependensi \texttt{composer.json} dan \texttt{composer.lock} disalin terlebih dahulu, diikuti proses instalasi pustaka Composer. Kode sumber aplikasi baru disalin pada lapisan berikutnya, dengan urutan instruksi seperti pada Listing \ref{lst:dockerfile-backend}.
 
 \begin{lstlisting}[style=dockerstyle,caption={Berkas backend/Dockerfile dengan optimasi layer caching Composer.},label={lst:dockerfile-backend}]
 FROM php:8.4-cli-alpine
