@@ -192,7 +192,9 @@
 \thispagestyle{empty}
 
 \addcontentsline{toc}{chapter}{Daftar Isi}
+\begin{spacing}{1.05}
 \tableofcontents
+\end{spacing}
 \clearpage
 
 \pagenumbering{arabic}
@@ -268,7 +270,7 @@ Modul otentikasi dikelola oleh \texttt{AuthController}. Pengguna masuk ke sistem
 Seluruh rute sumber daya dilindungi oleh middleware \texttt{auth:sanctum}. Apabila rute privat diakses tanpa menyertakan token atau dengan token yang tidak sah, penanganan pengecualian pada \texttt{bootstrap/app.php} secara otomatis mengembalikan respons JSON dengan status \textbf{401 Unauthorized}. Rute \texttt{POST /api/logout} mencabut token aktif dari basis data sehingga token tersebut tidak dapat digunakan lagi.
 
 \subsection{Implementasi Endpoint dan Status Code HTTP}
-Operasi data pada \texttt{AssetController} mengembalikan kode status HTTP standar yang presisi:
+Operasi data pada \texttt{AssetController} mengembalikan kode status HTTP berikut:
 \begin{enumerate}
     \item \texttt{200 OK}: Dikembalikan saat memuat daftar aset (\texttt{GET /api/assets}), detail satu aset (\texttt{GET /api/assets/\{id\}}), memperbarui data (\texttt{PUT /api/assets/\{id\}}), dan menghapus data (\texttt{DELETE /api/assets/\{id\}}).
     \item \texttt{201 Created}: Dikembalikan saat pembuatan entitas aset baru berhasil disimpan ke basis data (\texttt{POST /api/assets}).
@@ -344,7 +346,7 @@ export { apiBaseUrl };
 \end{lstlisting}
 
 \subsection{Antarmuka Masuk Pengguna dan Manajemen Token}
-Saat pengguna membuka aplikasi, sistem memeriksa ketersediaan sesi di penyimpanan lokal. Jika sesi belum tersedia, formulir login ditampilkan sebagaimana terlihat pada Gambar \ref{fig:vue-login}.
+Saat pengguna membuka aplikasi, sistem memeriksa ketersediaan sesi di penyimpanan lokal. Jika sesi belum tersedia, formulir login ditampilkan sebagaimana terlihat pada Gambar \ref{fig:vue-login}. Di bawah formulir tercetak alamat server API yang sedang dipakai. Nilai itu dibaca dari \texttt{VITE\_API\_BASE\_URL}; saat tangkapan layar diambil, variabel tersebut diarahkan ke \texttt{http://localhost:8010/api} karena port 8000 di mesin pengembang sedang dipakai layanan lain.
 
 \begin{figure}[htbp]
     \centering
@@ -356,7 +358,7 @@ Saat pengguna membuka aplikasi, sistem memeriksa ketersediaan sesi di penyimpana
 Ketika formulir dikirimkan, token yang diterima dari backend disimpan ke dalam \texttt{localStorage} dengan kunci \texttt{auth\_token}. Pencegat Axios secara otomatis menyertakan token ini pada tajuk otentikasi di setiap permintaan berikutnya.
 
 \subsection{Dasbor Metrik dan Operasi CRUD Aset}
-Setelah otentikasi berhasil, pengguna diarahkan ke dasbor utama. Dasbor menampilkan kartu metrik ringkasan inventaris, kolom pencarian teks, filter status, serta tabel daftar aset lengkap. Bentuk akhir dasbor dapat dilihat pada Gambar \ref{fig:vue-dashboard}.
+Setelah login, pengguna masuk ke halaman inventaris. Baris judul langsung menyebut berapa alat yang belum bisa dipakai beserta alasannya, misalnya satu dipinjam dan satu dalam perawatan. Di bawahnya terdapat ringkasan jumlah alat siap pakai, dipinjam, dalam perawatan atau rusak, dan total nilai perolehan, lalu strip kesiapan yang menggambar satu batang untuk setiap kode aset menurut warna statusnya. Daftar aset dapat disaring lewat tab status dan kolom pencarian (nama, kode, kategori, atau ruang). Nilai perolehan dicetak rata kanan dengan angka tabular agar mudah dibandingkan (Gambar \ref{fig:vue-dashboard}).
 
 \begin{figure}[htbp]
     \centering
@@ -365,13 +367,22 @@ Setelah otentikasi berhasil, pengguna diarahkan ke dasbor utama. Dasbor menampil
     \label{fig:vue-dashboard}
 \end{figure}
 
-Penambahan aset baru dilakukan melalui jendela modal interaktif. Modal ini mengirimkan data ke endpoint \texttt{POST /api/assets}. Ketika peladen merespons dengan status 201 Created, daftar aset pada tabel langsung diperbarui secara reaktif tanpa perlu memuat ulang peramban. Gambar \ref{fig:vue-modal-tambah} memperlihatkan modal tersebut ketika sedang diisi.
+Penambahan aset dilakukan melalui modal yang mengirim data ke \texttt{POST /api/assets}. Ketika peladen merespons 201 Created, aset baru langsung muncul di tabel dan angka ringkasan ikut berubah tanpa memuat ulang halaman. Jika peladen membalas 422, pesan validasi dari Laravel ditampilkan di bawah kolom yang bermasalah. Modal dapat ditutup dengan tombol Batal, tombol Tutup, atau tombol Escape. Gambar \ref{fig:vue-modal-tambah} memperlihatkan modal tersebut ketika sedang diisi.
 
 \begin{figure}[htbp]
     \centering
     \customfbox{\includegraphics[width=0.95\linewidth,keepaspectratio]{images/ss-05c-vue-modal-tambah.png}}
     \caption{Modal interaktif penambahan data aset laboratorium baru pada antarmuka frontend.}
     \label{fig:vue-modal-tambah}
+\end{figure}
+
+Pada layar ponsel, ringkasan berubah menjadi dua kolom, tab status dapat digeser, dan setiap baris tabel menjadi kartu dua baris berisi kode, status, nama, nilai, serta tombol Ubah dan Hapus berukuran sentuh 44 piksel (Gambar \ref{fig:vue-mobile}).
+
+\begin{figure}[htbp]
+    \centering
+    \customfbox{\includegraphics[height=0.62\textheight,keepaspectratio]{images/ss-05d-vue-mobile.png}}
+    \caption{Tampilan halaman inventaris pada lebar layar ponsel 390 piksel.}
+    \label{fig:vue-mobile}
 \end{figure}
 
 \section{Manajemen Repositori GitHub dan CI Pipeline (CPMK 2)}
@@ -382,17 +393,29 @@ Repositori diatur dengan tiga tingkatan cabang:
 \begin{enumerate}
     \item \texttt{main}: Cabang produksi utama yang dilindungi secara ketat.
     \item \texttt{dev}: Cabang integrasi pengembangan pra-produksi.
-    \item \texttt{feat/backend-and-frontend}: Cabang fitur untuk pengembangan modul backend dan frontend.
+    \item \texttt{feat/backend-and-frontend} dan \texttt{feat/ui-refresh-and-secrets}: Cabang fitur, masing-masing untuk satu paket perubahan.
 \end{enumerate}
 
-Seluruh perubahan kode dari cabang fitur diintegrasikan ke cabang \texttt{dev} melalui Pull Request nomor 1. Setelah diverifikasi lulus oleh pengujian CI, cabang \texttt{dev} digabungkan ke cabang \texttt{main} melalui Pull Request nomor 2. Gambar \ref{fig:git-workflow} memuat riwayat komit beserta pohon percabangannya dari terminal Linux.
+Implementasi awal backend dan frontend masuk ke \texttt{dev} melalui Pull Request \#1, lalu dari \texttt{dev} ke \texttt{main} melalui Pull Request \#2. Perombakan antarmuka, pembaruan PHP ke 8.5.12, dan perbaikan penggunaan GitHub Secrets menempuh jalur yang sama melalui Pull Request \#3 dan \#4. Komit \texttt{f83fed0} (perapian komentar) sempat didorong langsung ke \texttt{main} karena saat itu aturan proteksi belum mewajibkan Pull Request dan admin masih bisa melewatinya. Celah ini kemudian ditutup dengan aturan pada subbab berikutnya. Listing \ref{lst:git-graph} memuat graf riwayat komit cabang \texttt{main}.
 
-\begin{figure}[htbp]
-    \centering
-    \customfbox{\includegraphics[width=0.95\linewidth,keepaspectratio]{images/ss-09-git-workflow.png}}
-    \caption{Pemeriksaan status cabang Git dan riwayat graf penggabungan Pull Request pada terminal Linux.}
-    \label{fig:git-workflow}
-\end{figure}
+\begin{lstlisting}[style=bashstyle,basicstyle=\ttfamily\scriptsize,caption={Graf riwayat komit cabang main setelah Pull Request \#4.},label={lst:git-graph}]
+$ git log --graph --oneline -n 9
+*   eeab6d9 Merge pull request #4 from hafidzrizqullahprasetya/dev
+|\
+| *   3918efe Merge pull request #3 from .../feat/ui-refresh-and-secrets
+| |\
+| | * 6d49098 feat: rombak antarmuka inventaris dan perbarui php ke 8.5.12
+| |/
+|/|
+* | f83fed0 style: bersihkan komentar kode dan rapikan berkas sumber
+* | 085dd03 Merge pull request #2 from hafidzrizqullahprasetya/dev
+|\|
+| * 7d1ddd6 Merge pull request #1 from .../feat/backend-and-frontend
+|/|
+| * 50ce732 feat: implementasi backend laravel sanctum dan frontend vue
+|/
+* 07c7b52 chore: inisialisasi repositori uts kepl nim 535493
+\end{lstlisting}
 
 Beranda repositori publik tersebut, termasuk struktur direktori \texttt{backend/} dan \texttt{frontend/}, tampak pada Gambar \ref{fig:repo-github}.
 
@@ -409,6 +432,7 @@ Cabang \texttt{main} dan \texttt{dev} diproteksi untuk menolak pengunggahan lang
     \item Integrasi hanya dapat dilakukan melalui mekanisme Pull Request.
     \item Pemeriksaan status (\textit{status checks}) harus lulus sebelum penggabungan, yaitu pekerjaan \texttt{Backend Test} dan \texttt{Frontend Build}.
     \item Opsi sinkronisasi cabang mutakhir (\textit{strict check}) aktif.
+    \item Aturan berlaku juga untuk administrator repositori (\textit{enforce admins}), sehingga pemilik repositori pun tidak bisa melewatinya.
 \end{enumerate}
 
 Gambar \ref{fig:branch-protection} menampilkan dua aturan proteksi yang aktif pada antarmuka GitHub.
@@ -420,17 +444,21 @@ Gambar \ref{fig:branch-protection} menampilkan dua aturan proteksi yang aktif pa
     \label{fig:branch-protection}
 \end{figure}
 
-Konfigurasi tersebut juga diperiksa langsung melalui GitHub CLI agar isinya tidak bergantung pada tampilan antarmuka. Keluarannya menegaskan bahwa pemeriksaan status bersifat ketat (\textit{strict}) dan mencakup kedua pekerjaan CI, sementara pengunggahan paksa maupun penghapusan cabang ditolak (Listing \ref{lst:branch-protection-api}).
+Isi aturan tidak terlihat pada daftar di atas, sehingga konfigurasinya diperiksa lewat GitHub CLI. Keluarannya menunjukkan Pull Request wajib, pemeriksaan status bersifat ketat dan mencakup kedua pekerjaan CI, aturan berlaku bagi admin, serta pengunggahan paksa dan penghapusan cabang ditolak (Listing \ref{lst:branch-protection-api}). Cabang \texttt{dev} memberikan keluaran yang sama.
 
 \begin{lstlisting}[style=bashstyle,caption={Verifikasi konfigurasi proteksi cabang main melalui GitHub CLI.},label={lst:branch-protection-api}]
 $ gh api repos/hafidzrizqullahprasetya/uts-p1-535493/branches/main/protection \
     --jq '{strict: .required_status_checks.strict,
            checks: .required_status_checks.contexts,
+           pr_required: (.required_pull_request_reviews != null),
+           enforce_admins: .enforce_admins.enabled,
            force_push: .allow_force_pushes.enabled,
            deletion: .allow_deletions.enabled}'
 {
   "strict": true,
   "checks": ["Backend Test", "Frontend Build"],
+  "pr_required": true,
+  "enforce_admins": true,
   "force_push": false,
   "deletion": false
 }
@@ -439,7 +467,7 @@ $ gh api repos/hafidzrizqullahprasetya/uts-p1-535493/branches/main/protection \
 \subsection{Pipeline Continuous Integration (CI)}
 Alur kerja integrasi berkelanjutan didefinisikan pada berkas \texttt{.github/workflows/ci.yml}. Berkas ini memuat dua pekerjaan pengujian yang berjalan secara paralel:
 \begin{enumerate}
-    \item \textbf{Backend Test:} Menyiapkan lingkungan PHP 8.4, memasang dependensi Composer dari cache, menginisialisasi basis data SQLite lokal, menjalankan migrasi, dan mengeksekusi \texttt{php artisan test}.
+    \item \textbf{Backend Test:} Menyiapkan lingkungan PHP 8.5, memasang dependensi Composer dari cache, membaca \texttt{APP\_KEY} dari GitHub Secrets, menginisialisasi basis data SQLite lokal, menjalankan migrasi, dan mengeksekusi \texttt{php artisan test}.
     \item \textbf{Frontend Build:} Menyiapkan lingkungan Node.js 20, memasang pustaka menggunakan \texttt{npm ci}, dan memverifikasi kompilasi aset melalui \texttt{npm run build}.
 \end{enumerate}
 
@@ -467,12 +495,32 @@ Eksekusi alur kerja untuk Pull Request cabang \texttt{dev} terekam pada Gambar \
 \end{figure}
 
 \subsection{Manajemen Rahasia dengan GitHub Secrets}
-Nilai konfigurasi sensitif seperti \texttt{APP\_KEY} dan \texttt{DB\_PASSWORD} disimpan pada menu \textit{Settings} $\rightarrow$ \textit{Secrets and variables} $\rightarrow$ \textit{Actions} di repositori GitHub. Variabel ini disuntikkan ke dalam instruksi pembangunan kontainer sebagai argumen pembangun (\textit{build-args}) tanpa pernah tersimpan secara terbuka pada repositori publik.
+Kunci aplikasi Laravel \texttt{APP\_KEY} disimpan pada menu \textit{Settings} $\rightarrow$ \textit{Secrets and variables} $\rightarrow$ \textit{Actions}, sehingga nilainya tidak pernah tertulis di repositori publik. Pekerjaan \texttt{Backend Test} membaca nilai itu sebagai variabel lingkungan; langkah \texttt{key:generate} hanya berjalan sebagai cadangan jika secret kosong, misalnya pada fork. Login ke \texttt{ghcr.io} juga memakai secret bawaan \texttt{GITHUB\_TOKEN} (Listing \ref{lst:secrets}).
+
+Kunci aplikasi sengaja tidak dimasukkan ke citra kontainer. Citra backend dipublikasikan secara publik di GHCR, sehingga kunci yang dibakar ke dalamnya, baik lewat \textit{build-args} maupun \texttt{key:generate} saat \textit{build}, dapat dibaca siapa saja yang mengunduh citra. Kunci diberikan saat kontainer dijalankan, misalnya \texttt{docker run -e APP\_KEY=... ghcr.io/...}.
+
+\begin{lstlisting}[style=yamlstyle,caption={Pemakaian GitHub Secrets pada ci.yml.},label={lst:secrets}]
+backend-test:
+  env:
+    APP_KEY: ${{ secrets.APP_KEY }}
+  steps:
+    - name: Generate Application Key (fallback)
+      run: if [ -z "$APP_KEY" ]; then php artisan key:generate; fi
+
+deploy:
+  steps:
+    - name: Log in to GitHub Container Registry (ghcr.io)
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+\end{lstlisting}
 
 \subsection{Tag Citra Berdasarkan Commit SHA dan Registri GHCR}
 Pekerjaan penerapan melakukan otentikasi ke \texttt{ghcr.io} menggunakan token bawaan \texttt{GITHUB\_TOKEN} dengan izin \texttt{packages: write}. Citra kontainer backend dan frontend dibangun dan diunggah dengan tag yang merujuk pada hash commit penuh (\texttt{\$\{\{ github.sha \}\}}), bukan tag \texttt{latest}. Pemberian tag unik tersebut menjamin ketertelusuran artefak rilis dengan versi kode sumber yang menyusunnya.
 
-Gambar \ref{fig:actions-main-deploy} memperlihatkan eksekusi alur kerja pada cabang \texttt{main} yang berhasil menyelesaikan seluruh pekerjaan secara berurutan dengan status hijau sempurna.
+Gambar \ref{fig:actions-main-deploy} memperlihatkan eksekusi alur kerja setelah Pull Request \#4 digabung ke \texttt{main}: pengujian backend dan kompilasi frontend lulus, lalu pekerjaan deploy berjalan dan selesai dalam 1 menit 35 detik.
 
 \begin{figure}[htbp]
     \centering
@@ -499,7 +547,7 @@ Kedua citra kontainer dipublikasikan pada GitHub Container Registry dengan visib
     \label{fig:packages-ghcr}
 \end{figure}
 
-Masing-masing paket menyimpan beberapa versi yang dinamai menurut hash commit penyusunnya, bukan tag \texttt{latest}. Halaman detail paket backend dan frontend pada Gambar \ref{fig:ghcr-tags} memperlihatkan tag \texttt{f83fed0} dan \texttt{085dd03} beserta perintah \texttt{docker pull} yang dihasilkan GitHub, sehingga citra tertentu dapat ditelusuri kembali ke komit asalnya.
+Masing-masing paket menyimpan beberapa versi yang dinamai menurut hash commit penyusunnya, bukan tag \texttt{latest}. Halaman detail paket backend dan frontend pada Gambar \ref{fig:ghcr-tags} memperlihatkan tag terbaru \texttt{eeab6d9} (komit merge Pull Request \#4) di atas \texttt{f83fed0} dan \texttt{085dd03}, beserta perintah \texttt{docker pull} yang dihasilkan GitHub, sehingga setiap citra dapat ditelusuri kembali ke komit asalnya.
 
 \begin{figure}[htbp]
     \centering
@@ -510,13 +558,13 @@ Masing-masing paket menyimpan beberapa versi yang dinamai menurut hash commit pe
 \end{figure}
 
 \section{Penyusunan Dockerfile Backend dan Frontend (CPMK 4 dan CPMK 5)}
-Soal nomor 5 menuntut penyusunan berkas \textit{Dockerfile} untuk backend dan frontend dengan standar optimasi kontainerisasi industri.
+Soal nomor 5 meminta berkas \textit{Dockerfile} untuk backend dan frontend yang memanfaatkan \textit{layer caching} dan \textit{multi-stage build}.
 
 \subsection{Dockerfile Backend dengan Optimasi Layer Caching}
-Berkas \texttt{backend/Dockerfile} menggunakan citra dasar resmi \texttt{php:8.4-cli-alpine} yang eksplisit dan bebas dari tag \texttt{latest}. Untuk memanfaatkan mekanisme \textit{cache} lapisan Docker secara optimal, berkas manifes dependensi \texttt{composer.json} dan \texttt{composer.lock} disalin terlebih dahulu, diikuti proses instalasi pustaka Composer. Kode sumber aplikasi baru disalin pada lapisan berikutnya, dengan urutan instruksi seperti pada Listing \ref{lst:dockerfile-backend}.
+Berkas \texttt{backend/Dockerfile} menggunakan citra dasar resmi \texttt{php:8.5.12-cli-alpine}, yang dikunci sampai versi \textit{patch} dan tidak memakai tag \texttt{latest}. Berkas manifes dependensi \texttt{composer.json} dan \texttt{composer.lock} disalin lebih dulu dan langsung dipasang, baru kemudian kode sumber aplikasi disalin. Dengan urutan ini, perubahan kode tidak membatalkan lapisan instalasi Composer selama manifes dependensinya tetap sama (Listing \ref{lst:dockerfile-backend}).
 
 \begin{lstlisting}[style=dockerstyle,caption={Berkas backend/Dockerfile dengan optimasi layer caching Composer.},label={lst:dockerfile-backend}]
-FROM php:8.4-cli-alpine
+FROM php:8.5.12-cli-alpine
 
 WORKDIR /var/www/html
 
@@ -548,7 +596,6 @@ COPY . .
 RUN composer dump-autoload --optimize \
     && cp -n .env.example .env || true \
     && touch database/database.sqlite \
-    && php artisan key:generate --force \
     && chown -R www-data:www-data storage bootstrap/cache database
 
 EXPOSE 8000
@@ -586,11 +633,11 @@ CMD ["nginx", "-g", "daemon off;"]
 \chapter{Kesimpulan}
 Berdasarkan seluruh tahapan perancangan, implementasi, dan pengujian yang telah diselesaikan pada Ujian Tengah Semester mata kuliah Konstruksi dan Evolusi Perangkat Lunak, dapat ditarik beberapa kesimpulan:
 \begin{enumerate}
-    \item Layanan backend berbasis Laravel RESTful API berhasil dibangun dengan tema Sistem Manajemen Aset Laboratorium. Otentikasi berbasis token Laravel Sanctum berhasil memproteksi seluruh rute privat, dengan kepatuhan kode status HTTP standar (201 Created, 422 Unprocessable Content, 401 Unauthorized, dan 200 OK) yang terbukti melalui 13 pengujian otomatis berstatus lulus dan koleksi Postman yang lengkap (CPMK 1).
-    \item Antarmuka frontend berbasis Vue.js 3 dan Axios berhasil mengintegrasikan alur login, persistensi token pada penyimpanan lokal, dan operasi CRUD aset secara reaktif. URL basis API berhasil dikonfigurasi secara dinamis melalui variabel lingkungan \texttt{VITE\_API\_BASE\_URL} (CPMK 1).
-    \item Repositori sistem berhasil dikelola pada repositori publik GitHub \texttt{uts-p1-535493} dengan struktur direktori \texttt{backend/} dan \texttt{frontend/}. Kebijakan \textit{Branch Protection Rules} berhasil ditegakkan pada cabang \texttt{main} dan \texttt{dev} untuk mewajibkan alur Pull Request dan verifikasi kelulusan pengujian CI sebelum kode digabungkan (CPMK 2).
-    \item Alur penerapan berkelanjutan (\textit{Continuous Deployment}) berhasil dikonfigurasi pada alur kerja GitHub Actions. Pekerjaan deploy berhasil dibatasi hanya untuk kejadian push ke cabang \texttt{main}, mengamankan variabel sensitif menggunakan GitHub Secrets, dan mempublikasikan citra kontainer ke GitHub Container Registry (\texttt{ghcr.io}) dengan tag commit SHA penuh (CPMK 3).
-    \item Kontainerisasi sistem berhasil dioptimalkan melalui penyusunan \textit{Dockerfile backend} dengan strategi \textit{layer caching} dependensi Composer, serta \textit{Dockerfile frontend} yang menerapkan arsitektur \textit{multi-stage build} berbasis Nginx tanpa menyertakan direktori \texttt{node\_modules} pada citra akhir (CPMK 4 dan CPMK 5).
+    \item Backend Laravel RESTful API untuk Sistem Manajemen Aset Laboratorium melindungi seluruh rute privat dengan token Laravel Sanctum dan mengembalikan 200, 201, 422, serta 401 sesuai kondisinya. Perilaku ini dibuktikan oleh 13 pengujian otomatis (47 asersi) yang lulus dan koleksi Postman di repositori (CPMK 1).
+    \item Frontend Vue.js 3 dan Axios menangani login, menyimpan token di \texttt{localStorage}, dan menjalankan CRUD aset tanpa memuat ulang halaman. Alamat API dibaca dari \texttt{VITE\_API\_BASE\_URL}, dan tampilannya tetap dapat dipakai pada layar ponsel (CPMK 1).
+    \item Kode dikelola di repositori publik \texttt{uts-p1-535493} dengan folder \texttt{backend/} dan \texttt{frontend/}. Cabang \texttt{main} dan \texttt{dev} mewajibkan Pull Request dan kelulusan \texttt{Backend Test} serta \texttt{Frontend Build}, dan aturan itu juga mengikat admin (CPMK 2).
+    \item Pekerjaan deploy di GitHub Actions hanya berjalan pada push ke \texttt{main}. \texttt{APP\_KEY} dan \texttt{GITHUB\_TOKEN} diambil dari GitHub Secrets, dan citra backend serta frontend dipublikasikan ke \texttt{ghcr.io} dengan tag commit SHA penuh (CPMK 3).
+    \item \textit{Dockerfile} backend memakai \texttt{php:8.5.12-cli-alpine} dan memasang dependensi Composer sebelum menyalin kode agar lapisan \textit{cache} tetap terpakai. \textit{Dockerfile} frontend memakai \textit{multi-stage build}, sehingga citra akhir hanya berisi Nginx dan hasil \textit{build} tanpa \texttt{node\_modules} (CPMK 4 dan CPMK 5).
 \end{enumerate}
 
 \clearpage
