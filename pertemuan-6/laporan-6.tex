@@ -90,7 +90,6 @@
 }
 
 \renewcommand{\figurename}{Gambar}
-\renewcommand{\chaptername}{Bab}
 \renewcommand{\contentsname}{Daftar Isi}
 \renewcommand{\bibname}{Daftar Pustaka}
 \renewcommand{\thefigure}{\arabic{figure}}
@@ -104,14 +103,13 @@
     urlcolor=blue
 }
 
-\setlength{\headheight}{14.5pt}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[R]{\thepage}
+\fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0pt}
 \fancypagestyle{plain}{
     \fancyhf{}
-    \fancyhead[R]{\thepage}
+    \fancyfoot[C]{\thepage}
     \renewcommand{\headrulewidth}{0pt}
 }
 
@@ -124,7 +122,14 @@
 \renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
 \renewcommand{\cftsubsecleader}{\cftdotfill{\cftdotsep}}
 
-\setlength{\cftchapnumwidth}{2.5em}
+\renewcommand{\thechapter}{}
+\renewcommand{\chaptername}{}
+\renewcommand{\thesection}{\arabic{chapter}.\arabic{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\setlength{\cftchapindent}{0em}
+\setlength{\cftsecindent}{2em}
+\setlength{\cftsubsecindent}{4em}
+\setlength{\cftchapnumwidth}{0em}
 \setlength{\cftsecnumwidth}{2.8em}
 \setlength{\cftsubsecnumwidth}{3.2em}
 \renewcommand{\cftchappresnum}{}
@@ -511,7 +516,7 @@ Perubahan dimasukkan melalui Pull Request di repositori \url{https://github.com/
     \item PR \#12 (\texttt{fix/task-6-log-tanpa-data-pribadi} ke \texttt{dev}) mengganti email pada kolom \texttt{siapa} menjadi \texttt{user\_id}, menyeragamkan nama kunci konteks, dan menambah pengujian log tanpa data pribadi.
     \item PR \#13 (\texttt{dev} ke \texttt{main}) membawa perbaikan tersebut ke cabang utama.
 \end{enumerate}
-Gambar \ref{fig:github-pr} memperlihatkan ketiga PR tersebut dalam status \textit{merged}. Tanda silang pada PR tersebut berasal dari GitHub Actions yang tidak berjalan, bukan dari pengujian yang gagal (lihat Bab \ref{chap:kendala}).
+Gambar \ref{fig:github-pr} memperlihatkan ketiga PR tersebut dalam status \textit{merged}. Tanda silang pada PR tersebut berasal dari GitHub Actions yang tidak berjalan, bukan dari pengujian yang gagal (lihat bab Kendala dan Solusi).
 
 \begin{figure}[H]
     \centering
