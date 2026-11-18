@@ -182,57 +182,57 @@
 \chapter{Tujuan dan Lingkup Praktikum}
 
 \section{Tujuan Praktikum}
-Tujuan pelaksanaan praktikum Tugas 6 mata kuliah Konstruksi dan Evolusi Perangkat Lunak ini adalah:
+Praktikum Tugas 6 mata kuliah Konstruksi dan Evolusi Perangkat Lunak bertujuan agar mahasiswa mampu:
 \begin{enumerate}
-    \item Mahasiswa mampu mengonfigurasi kanal pencatatan log pada kerangka kerja Laravel agar dialihkan langsung ke aliran standar keluaran (\texttt{stdout}) di dalam kontainer, sehingga log dapat dikelola secara terpusat oleh mesin Docker.
-    \item Mahasiswa mampu merancang dan menerapkan sekurang-kurangnya tiga log terstruktur dengan konteks lengkap (pelaku, aktivitas, dan alasan terjadinya kejadian) pada alur penting aplikasi tanpa mencatat data rahasia maupun informasi pribadi.
-    \item Mahasiswa mampu membangun endpoint inspeksi kesehatan sistem (\texttt{/health}) yang memverifikasi kesiapan operasional basis data relasional PostgreSQL dan subsistem penyimpanan \textit{cache}.
-    \item Mahasiswa mampu mendefinisikan mekanisme \textit{healthcheck} deklaratif pada berkas \texttt{compose.yaml} dengan parameter interval, batas waktu (\textit{timeout}), jumlah percobaan ulang (\textit{retries}), dan periode pemanasan (\textit{start\_period}).
-    \item Mahasiswa mampu membuktikan keandalan mekanisme pemulihan dua arah ketika layanan basis data dimatikan secara sengaja hingga kontainer berstatus \textit{unhealthy}, serta mengamati pemulihan kembali ke status \textit{healthy} setelah layanan dinyalakan ulang.
-    \item Mahasiswa mampu mengonfigurasi pembatasan ukuran berkas log kontainer menggunakan opsi \texttt{max-size} dan \texttt{max-file} pada pengaturan \textit{logging} Docker Compose.
+    \item mengarahkan kanal log Laravel langsung ke keluaran standar (\texttt{stdout}) kontainer, sehingga log dapat dikumpulkan dan dibaca melalui Docker;
+    \item menambahkan sedikitnya tiga log terstruktur pada alur penting aplikasi, masing-masing berisi pelaku, aktivitas, dan sebab kejadian, tanpa mencatat data rahasia atau data pribadi;
+    \item membuat endpoint \texttt{/health} yang memeriksa koneksi ke basis data PostgreSQL dan fungsi penyimpanan \textit{cache};
+    \item menulis \textit{healthcheck} pada berkas \texttt{compose.yaml} dengan parameter interval, batas waktu (\textit{timeout}), jumlah percobaan ulang (\textit{retries}), dan masa tenggang awal (\textit{start\_period});
+    \item menguji healthcheck dua arah, yaitu kontainer berubah menjadi \textit{unhealthy} saat layanan basis data sengaja dimatikan lalu kembali \textit{healthy} setelah layanan itu dinyalakan ulang;
+    \item membatasi ukuran berkas log kontainer dengan opsi \texttt{max-size} dan \texttt{max-file} pada pengaturan \textit{logging} Docker Compose.
 \end{enumerate}
 
 \section{Batasan Masalah dan Repositori Kode}
-Pengerjaan tugas ini melanjutkan repositori ujian tengah semester (UTS) berbasis Docker Compose yang mengelola Sistem Inventaris Aset Laboratorium TRPL. Seluruh perubahan kode aplikasi, konfigurasi lingkungan, skrip pengujian fitur, serta berkas orkestrasi kontainer dikelola pada repositori publik GitHub:
+Tugas ini melanjutkan repositori ujian tengah semester (UTS), yaitu Sistem Inventaris Aset Laboratorium TRPL yang dijalankan dengan Docker Compose. Perubahan kode aplikasi, konfigurasi lingkungan, pengujian fitur, dan berkas Compose disimpan di repositori publik GitHub berikut:
 \begin{center}
     \url{https://github.com/hafidzrizqullahprasetya/uts-p1-535493}
 \end{center}
-Layanan aplikasi terdiri dari peladen backend berbasis FrankenPHP (PHP 8.5.12 Alpine) yang menyajikan RESTful API, basis data PostgreSQL 18.6, dan antarmuka frontend Vue.js 3 berbasis peladen Nginx.
+Aplikasi terdiri atas tiga layanan: backend FrankenPHP (PHP 8.5.12 Alpine) yang menyediakan RESTful API, basis data PostgreSQL 18.6, dan frontend Vue.js 3 yang disajikan oleh Nginx.
 
 \clearpage
 
 \chapter{Dasar Teori}
 
 \section{Prinsip Logging pada Arsitektur Kontainer}
-Metodologi \textit{Twelve-Factor App} pada poin kesebelas menyatakan bahwa aplikasi modern tidak boleh mengelola berkas pencatatan log secara mandiri di dalam sistem berkas lokalnya. Menulis log ke berkas statis di dalam kontainer menimbulkan beberapa masalah: log hilang saat kontainer dihapus, rotasi berkas harus diatur sendiri, dan berkas log dapat terus membesar hingga memenuhi disk \cite{twelve-factor}.
+Poin kesebelas metodologi \textit{Twelve-Factor App} menyatakan bahwa aplikasi tidak boleh mengurus sendiri berkas log di sistem berkas lokalnya. Di dalam kontainer, log yang ditulis ke berkas akan hilang saat kontainer dihapus, rotasinya harus diatur sendiri, dan ukurannya bisa terus bertambah sampai disk penuh \cite{twelve-factor}.
 
-Sebagai gantinya, aplikasi sebaiknya mengalirkan seluruh pesan log kejadian ke aliran standar keluaran (\texttt{stdout}) atau standar galat (\texttt{stderr}) tanpa \textit{buffering}. Docker menangkap aliran tersebut dan mengarahkannya ke \textit{logging driver} yang telah ditentukan, seperti \texttt{json-file}, \texttt{syslog}, atau penyedia agregasi log terpusat \cite{docker-logging}.
+Aplikasi cukup menulis log ke keluaran standar (\texttt{stdout}) atau galat standar (\texttt{stderr}) tanpa \textit{buffering}. Docker menangkap keluaran itu dan meneruskannya ke \textit{logging driver} yang dipilih, misalnya \texttt{json-file}, \texttt{syslog}, atau layanan agregasi log terpusat \cite{docker-logging}.
 
 \section{Log Terstruktur dan Perlindungan Data Sensitif}
-Pencatatan log berbasis teks bebas seringkali menyulitkan proses pemfilteran, analisis tren, dan pelacakan akar masalah saat terjadi insiden. Pendekatan log terstruktur (\textit{structured logging}) menyusun setiap entri log ke dalam format pasangan kunci dan nilai, biasanya direpresentasikan dalam JSON atau larik terindeks PSR-3 \cite{monolog}.
+Log berupa teks bebas sulit difilter dan ditelusuri ketika sedang mencari penyebab insiden. Pada log terstruktur (\textit{structured logging}), setiap entri disusun sebagai pasangan kunci dan nilai, biasanya dalam format JSON atau larik terindeks PSR-3 \cite{monolog}.
 
-Setiap entri log wajib membawa metadata kontekstual yang menjawab tiga pertanyaan mendasar:
+Setiap entri log perlu membawa konteks yang menjawab tiga pertanyaan berikut:
 \begin{enumerate}
-    \item \textbf{Siapa}: Identitas entitas yang memicu kejadian (misalnya pengenal pengguna atau agen sistem).
-    \item \textbf{Aktivitas}: Operasi teknis atau alur bisnis yang sedang dijalankan.
-    \item \textbf{Sebab}: Alasan terjadinya status tersebut, baik berupa keberhasilan eksekusi maupun pesan galat dari pengecualian sistem.
+    \item \textbf{Siapa}: pihak yang memicu kejadian, misalnya pengenal pengguna atau agen sistem.
+    \item \textbf{Aktivitas}: operasi atau alur bisnis yang sedang berjalan.
+    \item \textbf{Sebab}: alasan kejadian, berupa keterangan bahwa operasi berhasil atau pesan galat dari pengecualian.
 \end{enumerate}
 Log tidak boleh memuat kata sandi, token autentikasi seperti token Sanctum, kunci sesi, maupun data pribadi seperti email, nomor telepon, atau nomor identitas \cite{owasp-logging}.
 
 \section{Mekanisme Pemeriksaan Kesehatan (Healthcheck Endpoint)}
-Endpoint \texttt{/health} berfungsi sebagai indikator kesiapan operasional (\textit{readiness probe}) dan ketahanan hidup (\textit{liveness probe}) dari sebuah layanan web. Endpoint kesehatan perlu menjalankan pemeriksaan aktif terhadap dependensi kritis yang menopang aplikasi \cite{docker-healthcheck}.
+Endpoint \texttt{/health} dipakai untuk mengetahui apakah sebuah layanan web masih hidup (\textit{liveness probe}) dan siap menerima permintaan (\textit{readiness probe}). Untuk itu endpoint ini perlu benar-benar menghubungi dependensi yang dibutuhkan aplikasi \cite{docker-healthcheck}.
 
-Apabila seluruh komponen inti, seperti koneksi basis data relasional dan pustaka penyimpanan \textit{cache}, dapat dihubungi dan membalas perintah uji coba dengan benar, endpoint merespons dengan kode status HTTP 200 OK. Jika salah satu komponen gagal, endpoint mengembalikan kode status HTTP 503 Service Unavailable disertai laporan diagnostik yang menyebutkan secara spesifik komponen mana yang bermasalah.
+Jika semua komponen inti, misalnya basis data dan \textit{cache}, dapat dihubungi dan menjawab perintah uji dengan benar, endpoint membalas dengan kode status HTTP 200 OK. Jika ada komponen yang gagal, endpoint membalas HTTP 503 Service Unavailable dan menyebutkan komponen mana yang bermasalah.
 
 \section{Orkestrasi Healthcheck Dua Arah pada Docker Compose}
-Docker Compose menyediakan instrumen deklaratif untuk memantau status kesehatan kontainer secara berkala melalui blok \texttt{healthcheck}. Konfigurasi ini memiliki empat parameter utama:
+Docker Compose dapat memeriksa kesehatan kontainer secara berkala melalui blok \texttt{healthcheck}. Blok ini memiliki empat parameter utama:
 \begin{enumerate}
-    \item \texttt{interval}: Frekuensi eksekusi perintah pemeriksaan (misalnya setiap 10 detik).
-    \item \texttt{timeout}: Batas durasi maksimal yang diberikan bagi perintah pemeriksaan sebelum dianggap gagal (misalnya 5 detik).
-    \item \texttt{retries}: Ambang batas kegagalan beruntun yang diperlukan sebelum Docker mengubah status kontainer dari \textit{healthy} menjadi \textit{unhealthy}.
-    \item \texttt{start\_period}: Masa tenggang awal saat kontainer pertama kali dinyalakan agar proses inisialisasi aplikasi tidak langsung divonis gagal.
+    \item \texttt{interval}: jarak waktu antarpemeriksaan, misalnya 10 detik.
+    \item \texttt{timeout}: batas waktu satu pemeriksaan sebelum dianggap gagal, misalnya 5 detik.
+    \item \texttt{retries}: jumlah kegagalan berturut-turut sebelum Docker mengubah status kontainer dari \textit{healthy} menjadi \textit{unhealthy}.
+    \item \texttt{start\_period}: masa tenggang setelah kontainer dinyalakan, agar aplikasi yang masih melakukan inisialisasi tidak langsung dianggap gagal.
 \end{enumerate}
-Pemeriksaan dua arah berarti status kontainer dapat berpindah secara dinamis: dari sehat menjadi sakit saat dependensi eksternal terputus, dan kembali sehat saat dependensi tersebut pulih tanpa perlu membuat ulang kontainer \cite{docker-compose-spec}.
+Healthcheck disebut dua arah karena status kontainer bisa berubah dari sehat menjadi sakit ketika dependensi terputus, lalu kembali sehat setelah dependensi itu pulih, tanpa kontainer perlu dibuat ulang \cite{docker-compose-spec}.
 
 \clearpage
 
@@ -277,7 +277,7 @@ Log ditulis dengan facade \texttt{Illuminate\textbackslash Support\textbackslash
 Pelaku dicatat dengan nomor \texttt{id} pengguna, bukan email. Email termasuk data pribadi, sedangkan \texttt{id} cukup untuk menelusuri pengguna di basis data bila diperlukan. Password, token Sanctum, dan isi masukan formulir tidak pernah dimasukkan ke konteks log.
 
 \subsection{Alur 1: Penyimpanan Data Aset Baru (INFO)}
-\textbf{Alasan memilih alur ini:} menambah aset adalah operasi tulis utama pada sistem inventaris. Bila ada selisih data, log ini menjadi jejak kapan aset dibuat, oleh pengguna mana, dan dengan kode apa. Kejadian ini normal sehingga tingkat yang dipakai adalah \texttt{info}.
+Alur ini dipilih karena menambah aset adalah operasi tulis utama pada sistem inventaris. Jika kelak ditemukan selisih data, log ini menunjukkan kapan aset dibuat, oleh pengguna mana, dan dengan kode apa. Kejadiannya normal, jadi tingkat yang dipakai adalah \texttt{info}.
 
 \begin{lstlisting}[style=phpstyle,caption={Log info pada AssetController::store() setelah aset tersimpan.},label={lst:log-info}]
 Log::info('Data aset berhasil disimpan', [
@@ -291,7 +291,7 @@ Log::info('Data aset berhasil disimpan', [
 \end{lstlisting}
 
 \subsection{Alur 2: Validasi Masukan Gagal (WARNING)}
-\textbf{Alasan memilih alur ini:} permintaan yang ditolak validasi tidak merusak sistem, tetapi bila sering terjadi bisa menandakan formulir frontend yang salah atau klien yang mengirim data asal. Tingkat \texttt{warning} dipakai karena kejadian ini perlu diperhatikan tetapi bukan kegagalan sistem. Konteks hanya menyimpan nama kolom yang gagal (\texttt{kolom\_gagal}), bukan isi masukan pengguna.
+Permintaan yang ditolak validasi memang tidak merusak sistem. Namun, jika sering terjadi, hal itu bisa menandakan formulir frontend yang salah atau klien yang mengirim data sembarangan. Karena perlu diperhatikan tetapi bukan kegagalan sistem, alur ini dicatat dengan tingkat \texttt{warning}. Konteksnya hanya menyimpan nama kolom yang gagal (\texttt{kolom\_gagal}) tanpa isi masukan pengguna.
 
 \begin{lstlisting}[style=phpstyle,caption={Log warning saat validasi penyimpanan aset gagal.},label={lst:log-warning}]
 if ($validator->fails()) {
@@ -309,7 +309,7 @@ if ($validator->fails()) {
 \end{lstlisting}
 
 \subsection{Alur 3: Gagal Menghubungi Basis Data (ERROR)}
-\textbf{Alasan memilih alur ini:} basis data adalah dependensi yang paling sering membuat aplikasi tidak bisa melayani permintaan. Saat koneksi putus, pengembang perlu tahu sebab teknisnya, misalnya host \texttt{db} tidak dapat di-\textit{resolve} atau server masih dalam proses menyala. Tingkat \texttt{error} dipakai karena layanan benar-benar gagal. Log ini dipasang di dua tempat: blok \texttt{catch} pada \texttt{HealthController} (Listing \ref{lst:log-error}) dan blok \texttt{catch} pada metode \texttt{index()}, \texttt{store()}, serta \texttt{update()} di \texttt{AssetController} (Listing \ref{lst:log-error-aset}).
+Alur ini dipilih karena basis data adalah dependensi yang paling sering membuat aplikasi tidak bisa melayani permintaan. Saat koneksi putus, pengembang perlu tahu sebab teknisnya, misalnya host \texttt{db} tidak dapat di-\textit{resolve} atau server masih dalam proses menyala. Tingkat \texttt{error} dipakai karena layanan benar-benar gagal. Log ini dipasang di dua tempat: blok \texttt{catch} pada \texttt{HealthController} (Listing \ref{lst:log-error}) dan blok \texttt{catch} pada metode \texttt{index()}, \texttt{store()}, serta \texttt{update()} di \texttt{AssetController} (Listing \ref{lst:log-error-aset}).
 
 \begin{lstlisting}[style=phpstyle,caption={Log error pada HealthController saat basis data tidak dapat dihubungi.},label={lst:log-error}]
 } catch (\Throwable $e) {
@@ -343,7 +343,7 @@ Untuk memunculkan log INFO dan WARNING, token login disimpan ke variabel \texttt
     \label{fig:log-terstruktur}
 \end{figure}
 
-Untuk menjaga aturan ini tetap berlaku pada perubahan berikutnya, ditambahkan pengujian \texttt{test\_asset\_logs\_do\_not\_contain\_personal\_data\_or\_token} pada \texttt{AssetApiTest}. Pengujian ini memakai \texttt{Log::spy()} dan memastikan konteks log info dan warning berisi \texttt{user\_id}, serta tidak memuat email, token, ataupun kata \texttt{password}.
+Agar log tetap bebas data pribadi saat kode diubah di kemudian hari, ditambahkan pengujian \texttt{test\_asset\_logs\_do\_not\_contain\_personal\_data\_or\_token} pada \texttt{AssetApiTest}. Pengujian ini memakai \texttt{Log::spy()} untuk memeriksa bahwa konteks log info dan warning berisi \texttt{user\_id} dan tidak memuat email, token, ataupun kata \texttt{password}.
 
 \section{Endpoint Pemeriksaan Kesehatan /health (Soal 3)}
 Endpoint \texttt{/health} ditangani oleh \texttt{HealthController::check()} dan melakukan dua pemeriksaan nyata:
@@ -546,7 +546,7 @@ Gambar \ref{fig:github-pr} memperlihatkan ketiga PR tersebut dalam status \texti
     \item Log Laravel dialihkan ke \texttt{stdout} lewat kanal \texttt{stdout} dan \texttt{LOG\_CHANNEL=stdout}. Tidak ada berkas \texttt{laravel.log} di dalam kontainer, dan log aplikasi terbaca melalui \texttt{docker compose logs}.
     \item Tiga alur penting diberi log terstruktur dengan tingkat yang sesuai: penyimpanan aset (\texttt{info}), validasi gagal (\texttt{warning}), dan gagal menghubungi basis data (\texttt{error}). Setiap log memuat \texttt{siapa}, \texttt{sedang\_mengerjakan}, dan \texttt{sebab}. Pelaku dicatat sebagai \texttt{user\_id}, dan pengujian otomatis memeriksa bahwa email, token, dan password tidak tercatat.
     \item Endpoint \texttt{/health} memeriksa basis data dengan \texttt{SELECT 1} dan cache dengan operasi tulis-baca. Endpoint membalas 200 saat sehat dan 503 dengan \texttt{bagian\_bermasalah} saat ada komponen yang gagal.
-    \item Healthcheck \texttt{backend} di \texttt{compose.yaml} memakai \texttt{interval} 10 detik, \texttt{timeout} 5 detik, \texttt{retries} 5, dan \texttt{start\_period} 15 detik, dan kolom STATUS pada \texttt{docker compose ps} menampilkan \textit{healthy}.
+    \item Healthcheck \texttt{backend} di \texttt{compose.yaml} memakai \texttt{interval} 10 detik, \texttt{timeout} 5 detik, \texttt{retries} 5, dan \texttt{start\_period} 15 detik. Dengan konfigurasi ini, kolom STATUS pada \texttt{docker compose ps} menampilkan \textit{healthy}.
     \item Saat \texttt{db} dihentikan, \texttt{backend} menjadi \textit{unhealthy} setelah sekitar satu menit dan log ERROR mencatat sebabnya. Setelah \texttt{db} dinyalakan kembali, \texttt{backend} kembali \textit{healthy} tanpa dibuat ulang.
     \item Setiap layanan memakai driver \texttt{json-file} dengan \texttt{max-size: "10m"} dan \texttt{max-file: "3"}, dan konfigurasi ini terlihat aktif melalui \texttt{docker inspect}.
 \end{enumerate}
