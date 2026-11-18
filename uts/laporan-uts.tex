@@ -216,7 +216,7 @@ Sesuai lembar soal Ujian Tengah Semester mata kuliah \textit{Konstruksi dan Evol
 \section{Arsitektur RESTful API dan Otentikasi Token}
 REST (\textit{Representational State Transfer}) memakai metode HTTP standar untuk membaca dan mengubah sumber daya. Layanan REST bersifat \textit{stateless}: setiap permintaan membawa sendiri identitas pengirimnya, tanpa sesi yang disimpan di memori peladen \cite{laravel-sanctum}.
 
-Laravel Sanctum menerbitkan \textit{personal access token} setelah kredensial pengguna diverifikasi. Peladen menyimpan hash token di basis data, sedangkan klien menyimpan teks aslinya dan mengirimkannya pada tajuk \texttt{Authorization: Bearer <token>}. Kode status HTTP menjadi bagian dari kontrak API: 201 ketika data dibuat, 422 ketika validasi gagal, dan 401 ketika token tidak ada atau tidak sah \cite{laravel-sanctum}.
+Laravel Sanctum menerbitkan \textit{personal access token} setelah kredensial pengguna diverifikasi. Peladen menyimpan hash token di basis data, sedangkan klien menyimpan teks aslinya dan mengirimkannya pada tajuk \texttt{Authorization: Bearer <token>}. Kode status HTTP yang dipakai adalah 201 ketika data dibuat, 422 ketika validasi gagal, dan 401 ketika token tidak ada atau tidak sah \cite{laravel-sanctum}.
 
 \section{Aplikasi Halaman Tunggal dan Klien HTTP}
 Vue.js 3 membangun antarmuka dari komponen reaktif, sehingga tampilan diperbarui tanpa memuat ulang halaman \cite{vuejs}. Axios menghubungkan komponen dengan API. \textit{Request interceptor} menyisipkan token dari \texttt{localStorage} ke setiap permintaan, dan \textit{response interceptor} membersihkan sesi ketika peladen membalas 401. Alamat API dibaca dari variabel lingkungan agar tidak ditulis mati di komponen \cite{axios}.
@@ -228,7 +228,7 @@ Branch \texttt{main} menampung kode yang siap rilis, \texttt{dev} menampung hasi
 GitHub Actions menjalankan \textit{workflow} berformat YAML di \texttt{.github/workflows/} sebagai respons terhadap kejadian di repositori, misalnya push atau Pull Request. Job yang tidak saling bergantung berjalan paralel, sedangkan job dengan \texttt{needs} dan \texttt{if} hanya berjalan setelah syaratnya terpenuhi \cite{github-actions}.
 
 \section{Kontainerisasi dan Dockerfile Multi-Stage}
-Docker mengemas aplikasi beserta dependensinya ke dalam image yang berjalan sama di mesin mana pun. Setiap instruksi Dockerfile menghasilkan lapisan yang di-\textit{cache}. Dengan menyalin manifes dependensi sebelum kode sumber, langkah instalasi dependensi tidak diulang selama manifesnya tidak berubah. \textit{Multi-stage build} memisahkan tahap kompilasi dari tahap penyajian, sehingga image akhir hanya berisi hasil build \cite{docker-multistage,nginx}.
+Docker mengemas aplikasi beserta dependensinya ke dalam image, sehingga aplikasi berjalan dengan cara yang sama di mesin lain. Setiap instruksi Dockerfile menghasilkan lapisan yang di-\textit{cache}. Jika manifes dependensi disalin sebelum kode sumber, langkah instalasi dependensi tidak diulang selama manifesnya tidak berubah. \textit{Multi-stage build} memisahkan tahap kompilasi dari tahap penyajian, sehingga image akhir hanya berisi hasil build \cite{docker-multistage,nginx}.
 
 \section{Docker Compose}
 Docker Compose mendefinisikan beberapa container dalam satu berkas \texttt{docker-compose.yml}. Setiap service masuk ke jaringan yang sama dan dapat saling memanggil dengan nama service sebagai nama host. Data yang harus bertahan disimpan di \textit{named volume} yang dikelola Docker dan tidak ikut terhapus oleh \texttt{docker compose down}. Nilai seperti \texttt{\$\{DB\_PASSWORD\}} di dalam berkas compose diambil dari berkas \texttt{.env} di folder yang sama \cite{docker-compose}.
@@ -311,7 +311,7 @@ Koleksi Postman disimpan di \nolinkurl{backend/postman/uts_kepl_asset_api.postma
     \item Login menyimpan token ke variabel koleksi \texttt{token}.
     \item Request tambah aset menyimpan \texttt{id} hasilnya ke variabel \texttt{assetId}, yang kemudian dipakai oleh request tampil satu, ubah, dan hapus.
     \item Request uji 422 dan 401 dijalankan setelah CRUD.
-    \item Logout ada di akhir, diikuti satu request yang memastikan token lama ditolak.
+    \item Logout ada di akhir, diikuti satu request untuk mengecek bahwa token lama sudah ditolak.
 \end{enumerate}
 Setiap request memiliki skrip tes yang memeriksa kode status yang diharapkan. Koleksi dijalankan dengan Newman, \textit{runner} baris perintah resmi dari Postman. Hasilnya 11 request dan 11 asersi tanpa kegagalan (Gambar \ref{fig:newman}).
 
@@ -385,7 +385,7 @@ Formulir login mengirim email dan kata sandi ke \texttt{POST /api/login}. Token 
 \end{figure}
 
 \subsection{Halaman CRUD Aset (Soal 2b)}
-Setelah login, halaman inventaris menampilkan ringkasan jumlah alat menurut status, total nilai perolehan, strip kesiapan per kode aset, tab status, kolom pencarian, dan tabel aset (Gambar \ref{fig:vue-dashboard}). Tambah dan ubah dilakukan lewat modal, sedangkan hapus meminta konfirmasi lebih dulu. Gambar \ref{fig:vue-tambah} sampai \ref{fig:vue-hapus} merekam ketiga operasi tersebut di peramban, dengan data yang benar-benar tersimpan di PostgreSQL (dibuktikan pada Subbab \ref{sec:soal6}).
+Setelah login, halaman inventaris menampilkan ringkasan jumlah alat menurut status, total nilai perolehan, strip kesiapan per kode aset, tab status, kolom pencarian, dan tabel aset (Gambar \ref{fig:vue-dashboard}). Tambah dan ubah dilakukan lewat modal, sedangkan hapus meminta konfirmasi lebih dulu. Gambar \ref{fig:vue-tambah} sampai \ref{fig:vue-hapus} merekam ketiga operasi itu di peramban. Datanya tersimpan di PostgreSQL, seperti terlihat pada Subbab \ref{sec:soal6}.
 
 \begin{figure}[htbp]
     \centering
@@ -488,12 +488,7 @@ Branch \texttt{main} dan \texttt{dev} memiliki aturan yang sama (Gambar \ref{fig
 \end{figure}
 
 \subsection{Workflow CI (Soal 3c)}
-Berkas \texttt{.github/workflows/ci.yml} berjalan pada push dan Pull Request ke \texttt{main} dan \texttt{dev}, dengan dua job paralel:
-\begin{enumerate}
-    \item \textbf{Backend Test}: menyiapkan PHP 8.5 dan service PostgreSQL 18.6, memasang dependensi Composer, menjalankan migrasi, lalu \texttt{php artisan test}.
-    \item \textbf{Frontend Build}: menyiapkan Node.js 20, lalu menjalankan \texttt{npm ci} dan \texttt{npm run build}.
-\end{enumerate}
-Seluruh run di tab Actions berstatus hijau (Gambar \ref{fig:actions-tab}).
+Berkas \texttt{.github/workflows/ci.yml} berjalan pada push dan Pull Request ke \texttt{main} dan \texttt{dev}, dengan dua job yang berjalan paralel. Job \texttt{Backend Test} menyiapkan PHP 8.5 dan service PostgreSQL 18.6, memasang dependensi Composer, menjalankan migrasi, lalu \texttt{php artisan test}. Job \texttt{Frontend Build} menyiapkan Node.js 20, lalu menjalankan \texttt{npm ci} dan \texttt{npm run build}. Seluruh run di tab Actions berstatus hijau (Gambar \ref{fig:actions-tab}).
 
 \begin{figure}[htbp]
     \centering
@@ -631,7 +626,7 @@ CMD ["docker/start.sh"]
 \end{lstlisting}
 
 \subsection{Dockerfile Frontend Multi-Stage (Soal 5b)}
-Tahap \texttt{builder} memakai \texttt{node:20-alpine} untuk \texttt{npm ci} dan \texttt{npm run build}. Tahap kedua memakai \texttt{nginx:1.27-alpine} dan hanya menyalin folder \texttt{dist} (Listing \ref{lst:dockerfile-frontend}). Pemeriksaan di dalam image akhir menunjukkan isinya hanya \texttt{assets/} dan \texttt{index.html}, dengan nol folder \texttt{node\_modules} (Gambar \ref{fig:env-image}).
+Tahap \texttt{builder} memakai \texttt{node:20-alpine} untuk \texttt{npm ci} dan \texttt{npm run build}. Tahap kedua memakai \texttt{nginx:1.27-alpine} dan hanya menyalin folder \texttt{dist} (Listing \ref{lst:dockerfile-frontend}). Saat image akhir diperiksa, isinya hanya \texttt{assets/} dan \texttt{index.html}, tanpa satu pun folder \texttt{node\_modules} (Gambar \ref{fig:env-image}).
 
 \begin{lstlisting}[style=dockerstyle,caption={frontend/Dockerfile.},label={lst:dockerfile-frontend}]
 FROM node:20-alpine AS builder
@@ -671,7 +666,7 @@ database/database.sqlite     .env
 storage/*.key
 \end{lstlisting}
 
-Tag \texttt{latest} pada keluaran \texttt{docker compose images} (Gambar \ref{fig:env-image}) adalah nama lokal yang diberikan Docker Compose untuk image hasil \textit{build} di laptop. Image dasar di kedua Dockerfile tetap memakai versi yang jelas, dan image di GHCR bertag hash commit.
+Tag \texttt{latest} pada keluaran \texttt{docker compose images} (Gambar \ref{fig:env-image}) adalah nama lokal yang diberikan Docker Compose untuk image hasil \textit{build} di laptop. Image dasar di kedua Dockerfile tetap ditulis dengan nomor versi, dan image di GHCR bertag hash commit.
 
 \section{Soal 6: Docker Compose (CPMK 6 dan CPMK 7)}\label{sec:soal6}
 
@@ -749,7 +744,7 @@ Gambar \ref{fig:compose-ps} adalah keluaran \texttt{docker compose ps}: ketiga c
 \end{figure}
 
 \subsection{Koneksi Lewat Nama Service (Soal 6b)}
-Backend terhubung ke basis data melalui \texttt{DB\_HOST: db}. Frontend tidak memanggil backend lewat alamat IP laptop. Peramban memanggil \texttt{/api} di origin yang sama (\texttt{localhost:8080}), lalu Nginx di container frontend meneruskannya ke \texttt{http://backend:8000} melalui DNS internal Docker (Listing \ref{lst:nginx}). Log backend pada Gambar \ref{fig:frankenphp-log} mencatat permintaan \texttt{GET /api/assets} dari peramban dengan \texttt{remote\_ip} \texttt{172.24.0.4}, yaitu alamat container frontend di jaringan Compose.
+Backend terhubung ke basis data melalui \texttt{DB\_HOST: db}. Frontend juga tidak memakai alamat IP laptop: peramban memanggil \texttt{/api} di origin yang sama (\texttt{localhost:8080}), lalu Nginx di container frontend meneruskannya ke \texttt{http://backend:8000} melalui DNS internal Docker (Listing \ref{lst:nginx}). Log backend pada Gambar \ref{fig:frankenphp-log} mencatat permintaan \texttt{GET /api/assets} dari peramban dengan \texttt{remote\_ip} \texttt{172.24.0.4}, yaitu alamat container frontend di jaringan Compose.
 
 \begin{lstlisting}[style=dockerstyle,caption={frontend/nginx.conf.},label={lst:nginx}]
 server {
@@ -818,12 +813,12 @@ php artisan db:seed --force
 exec frankenphp php-server --root public --listen :8000 --access-log
 \end{lstlisting}
 
-Gambar \ref{fig:frankenphp-log} menunjukkan bahwa respons API membawa tajuk \texttt{Server: FrankenPHP Caddy} dan \texttt{X-Powered-By: PHP/8.5.12}. Log container backend mencatat ``FrankenPHP started'' dengan \texttt{php\_version} 8.5.12, serta \texttt{http.log.access} untuk setiap permintaan \texttt{/api/assets}.
+Pada Gambar \ref{fig:frankenphp-log}, respons API membawa tajuk \texttt{Server: FrankenPHP Caddy} dan \texttt{X-Powered-By: PHP/8.5.12}. Log container backend mencatat ``FrankenPHP started'' dengan \texttt{php\_version} 8.5.12, serta \texttt{http.log.access} untuk setiap permintaan \texttt{/api/assets}.
 
 \begin{figure}[htbp]
     \centering
     \customfbox{\includegraphics[width=0.98\linewidth,keepaspectratio]{images/ss-12-frankenphp-log.png}}
-    \caption{Tajuk respons dan log container backend yang menunjukkan permintaan dilayani FrankenPHP.}
+    \caption{Tajuk respons dan log container backend saat permintaan dilayani FrankenPHP.}
     \label{fig:frankenphp-log}
 \end{figure}
 
@@ -842,25 +837,25 @@ Jika validasi gagal, Laravel membalas 422 dan Vue menampilkan pesannya di bawah 
 
 \chapter{Kendala dan Solusi}
 \begin{enumerate}
-    \item \textbf{Komit langsung ke main.} Komit \texttt{f83fed0} masuk ke \texttt{main} tanpa Pull Request karena aturan awal hanya mewajibkan status check dan admin masih bisa melewatinya. Solusinya, aturan \texttt{main} dan \texttt{dev} ditambah \textit{Require a pull request before merging} dan \textit{Do not allow bypassing the above settings}. Sejak itu semua perubahan masuk lewat Pull Request.
-    \item \textbf{APP\_KEY di GitHub Secrets tidak valid.} Saat \texttt{APP\_KEY} mulai dibaca dari Secrets, \texttt{Backend Test} gagal dengan pesan ``Unsupported cipher or incorrect key length''. Nilai lama ternyata salah format dan tidak terdeteksi karena sebelumnya secret itu belum pernah dipakai. Solusinya, kunci baru berformat \texttt{base64:} dengan panjang 32 byte dibuat ulang lalu disimpan ke Secrets, kemudian job dijalankan ulang.
-    \item \textbf{Port 8000 sudah dipakai.} Di laptop pengerjaan, port 8000 dipakai aplikasi Python (uvicorn) lain. Port backend di \texttt{docker-compose.yml} dibuat dapat diatur lewat \texttt{BACKEND\_PORT} dengan nilai bawaan 8000, dan di laptop ini diisi 8001 lewat \texttt{.env}.
-    \item \textbf{Healthcheck bawaan image FrankenPHP.} Image FrankenPHP membawa \textit{healthcheck} yang memeriksa \textit{admin endpoint} di port 2019, sedangkan \texttt{php-server} mematikan endpoint tersebut. Akibatnya backend tertahan di status \textit{health: starting}. Solusinya, \textit{healthcheck} di \texttt{docker-compose.yml} diganti dengan pemeriksaan rute \texttt{/up} milik Laravel, dan frontend menunggu backend \textit{healthy}.
-    \item \textbf{Perubahan data hilang setelah down/up.} Pada uji persistensi pertama, aset baru tetap ada, tetapi status AST-LAB-005 yang diubah menjadi Dipinjam kembali ke Tersedia. Penyebabnya, seeder dijalankan setiap kali container backend start dan memakai \texttt{updateOrCreate}, sehingga data seed ditimpa ke nilai awal. Seeder diubah menjadi \texttt{firstOrCreate} yang hanya membuat data yang belum ada (Pull Request \#9), lalu uji persistensi diulang dan hasilnya sesuai (Gambar \ref{fig:persistensi}).
-    \item \textbf{Koleksi Postman tidak bisa dijalankan berurutan.} Versi awal koleksi meletakkan logout sebelum CRUD sehingga token sudah dicabut, dan request ubah serta hapus memakai ID tetap \texttt{1} yang ikut menghapus data seed. Koleksi disusun ulang (Pull Request \#7): ID diambil dari respons tambah aset, logout dipindah ke akhir, dan setiap request diberi tes kode status.
+    \item Komit \texttt{f83fed0} masuk langsung ke \texttt{main} tanpa Pull Request karena aturan awal hanya mewajibkan status check dan admin masih bisa melewatinya. Aturan \texttt{main} dan \texttt{dev} lalu ditambah \textit{Require a pull request before merging} dan \textit{Do not allow bypassing the above settings}. Sejak itu semua perubahan masuk lewat Pull Request.
+    \item Saat \texttt{APP\_KEY} mulai dibaca dari GitHub Secrets, \texttt{Backend Test} gagal dengan pesan ``Unsupported cipher or incorrect key length''. Nilai lama ternyata salah format, dan kesalahan itu tidak ketahuan karena secret tersebut belum pernah dipakai. Kunci baru berformat \texttt{base64:} dengan panjang 32 byte kemudian dibuat dan disimpan ke Secrets, lalu job dijalankan ulang.
+    \item Di laptop pengerjaan, port 8000 sudah dipakai aplikasi Python (uvicorn) lain. Karena itu, port backend di \texttt{docker-compose.yml} dibuat dapat diatur lewat \texttt{BACKEND\_PORT} dengan nilai bawaan 8000, dan di laptop ini diisi 8001 lewat \texttt{.env}.
+    \item Image FrankenPHP membawa \textit{healthcheck} bawaan yang memeriksa \textit{admin endpoint} di port 2019, padahal \texttt{php-server} mematikan endpoint tersebut. Akibatnya backend tertahan di status \textit{health: starting}. Untuk mengatasinya, \textit{healthcheck} di \texttt{docker-compose.yml} diganti dengan pemeriksaan rute \texttt{/up} milik Laravel, dan frontend menunggu backend \textit{healthy}.
+    \item Pada uji persistensi pertama setelah \texttt{down} dan \texttt{up}, aset baru tetap ada, tetapi status AST-LAB-005 yang diubah menjadi Dipinjam kembali ke Tersedia. Penyebabnya, seeder dijalankan setiap kali container backend start dan memakai \texttt{updateOrCreate}, sehingga data seed ditimpa ke nilai awal. Seeder diubah menjadi \texttt{firstOrCreate} yang hanya membuat data yang belum ada (Pull Request \#9), lalu uji persistensi diulang dan hasilnya sesuai (Gambar \ref{fig:persistensi}).
+    \item Versi awal koleksi Postman tidak bisa dijalankan berurutan. Logout diletakkan sebelum CRUD sehingga token sudah dicabut, dan request ubah serta hapus memakai ID tetap \texttt{1} yang ikut menghapus data seed. Koleksi disusun ulang (Pull Request \#7): ID diambil dari respons tambah aset, logout dipindah ke akhir, dan setiap request diberi tes kode status.
 \end{enumerate}
 
 \clearpage
 
 \chapter{Kesimpulan}
 \begin{enumerate}
-    \item Backend Laravel untuk Sistem Manajemen Aset Laboratorium melindungi seluruh rute privat dengan token Sanctum, menyediakan CRUD aset, dan mengembalikan 201, 422, dan 401 sesuai kondisinya. Perilaku ini dibuktikan oleh 13 \textit{feature test} yang lulus dan 11 request koleksi Postman yang lulus di Newman (CPMK 1).
+    \item Backend Laravel untuk Sistem Manajemen Aset Laboratorium melindungi seluruh rute privat dengan token Sanctum, menyediakan CRUD aset, dan mengembalikan 201, 422, dan 401 sesuai kondisinya. Sebanyak 13 \textit{feature test} lulus, begitu juga 11 request koleksi Postman yang dijalankan dengan Newman (CPMK 1).
     \item Frontend Vue 3 dengan Axios menangani login, menyimpan token di \texttt{localStorage}, dan menjalankan tampil, tambah, ubah, serta hapus dari peramban. Alamat API diatur lewat \texttt{VITE\_API\_BASE\_URL} (CPMK 1).
     \item Kode dikelola di repositori publik \texttt{uts-p1-535493}. Branch \texttt{main} dan \texttt{dev} mewajibkan Pull Request serta kelulusan \texttt{Backend Test} dan \texttt{Frontend Build}, dan aturan itu juga mengikat admin (CPMK 2).
     \item Job deploy hanya berjalan pada push ke \texttt{main}. \texttt{APP\_KEY} dan \texttt{DB\_PASSWORD} disimpan di GitHub Secrets, dan image backend serta frontend dipublikasikan ke \texttt{ghcr.io} dengan tag hash commit (CPMK 3).
     \item Dockerfile backend memasang dependensi Composer sebelum menyalin kode, dan Dockerfile frontend memakai \textit{multi-stage build} sehingga image akhir hanya berisi Nginx dan hasil build (CPMK 4 dan CPMK 5).
     \item \texttt{docker compose up -d --build} menjalankan PostgreSQL, backend, dan frontend yang saling terhubung lewat nama service. Data bertahan setelah \texttt{down} dan \texttt{up} karena disimpan di \textit{named volume}, dan kredensial dibaca dari \texttt{.env} yang tidak di-commit (CPMK 6 dan CPMK 7).
-    \item Backend dilayani FrankenPHP 1.13.2 dengan PHP 8.5.12, dibuktikan oleh tajuk respons dan log container (nilai tambahan).
+    \item Backend dilayani FrankenPHP 1.13.2 dengan PHP 8.5.12, seperti terlihat pada tajuk respons dan log container (nilai tambahan).
 \end{enumerate}
 
 \clearpage
