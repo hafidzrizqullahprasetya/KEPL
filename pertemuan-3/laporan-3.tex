@@ -165,7 +165,7 @@ Sesuai arahan pada pertemuan ketiga dan deskripsi tugas di Google Classroom \tex
    \item Mahasiswa mampu menyusun pipeline empat tahap (\texttt{build}, \texttt{test}, \texttt{staging}, \texttt{production}) yang dirangkai dengan \texttt{needs:}.
    \item Mahasiswa mampu menjaga agar tahap deploy hanya berjalan dari branch \texttt{main} dan menunggu persetujuan manusia lewat \textit{environment} dengan \textit{required reviewer}.
    \item Mahasiswa mampu menuliskan urutan langkah deploy Laravel di server sebagai skrip \texttt{deploy.sh} yang berhenti saat ada perintah gagal.
-   \item Mahasiswa mampu membuktikan bahwa pipeline benar-benar menghentikan tahap berikutnya ketika satu pengujian sengaja digagalkan.
+   \item Mahasiswa mampu menunjukkan bahwa pipeline menghentikan tahap berikutnya ketika satu pengujian sengaja digagalkan.
 \end{enumerate}
 
 \clearpage
@@ -227,7 +227,7 @@ Continuous Integration (CI) memverifikasi setiap perubahan secara otomatis, seda
 \end{figure}
 
 \section{Pipeline Bertahap dengan \texttt{needs:}}
-GitHub Actions menjalankan setiap job di mesin yang bersih, sehingga tiap job harus menyiapkan ulang apa yang dibutuhkannya \cite{github-actions}. Kata kunci \texttt{needs:} membuat sebuah job menunggu job lain selesai lebih dulu \cite{github-needs}. Kalau job yang ditunggu gagal, job setelahnya tidak dijalankan sama sekali dan statusnya menjadi \textit{skipped}. Sifat inilah yang dipakai untuk menghentikan deploy ketika pengujian gagal.
+GitHub Actions menjalankan setiap job di mesin yang bersih, sehingga tiap job harus menyiapkan ulang apa yang dibutuhkannya \cite{github-actions}. Kata kunci \texttt{needs:} membuat sebuah job menunggu job lain selesai lebih dulu \cite{github-needs}. Kalau job yang ditunggu gagal, job setelahnya tidak dijalankan sama sekali dan statusnya menjadi \textit{skipped}. Praktikum ini memakai sifat tersebut untuk menghentikan deploy ketika pengujian gagal.
 
 \begin{figure}[H]
     \centering
@@ -268,7 +268,7 @@ GitHub Actions menjalankan setiap job di mesin yang bersih, sehingga tiap job ha
 \end{figure}
 
 \section{Environment dan Required Reviewer}
-\textit{Environment} pada GitHub Actions adalah wadah berisi variabel dan aturan perlindungan untuk satu tujuan deploy \cite{github-environments}. Ketika sebuah job memakai \texttt{environment: production} dan environment tersebut punya \textit{required reviewer}, job berhenti di status \textit{waiting} sampai ada orang yang menyetujui. Cara ini membuat deploy ke produksi tidak pernah berjalan sendiri tanpa sepengetahuan pemilik proyek.
+\textit{Environment} pada GitHub Actions adalah wadah berisi variabel dan aturan perlindungan untuk satu tujuan deploy \cite{github-environments}. Ketika sebuah job memakai \texttt{environment: production} dan environment tersebut punya \textit{required reviewer}, job berhenti di status \textit{waiting} sampai ada orang yang menyetujui, jadi deploy ke produksi tidak bisa berjalan tanpa sepengetahuan pemilik proyek.
 
 \begin{figure}[H]
     \centering
@@ -293,12 +293,12 @@ GitHub Actions menjalankan setiap job di mesin yang bersih, sehingga tiap job ha
     \draw[panah, draw=red!70, dashed] (fe) -- (job);
     \node[label, right=3pt of fe, align=left] {job \texttt{production}\\\textit{skipped}};
     \end{tikzpicture}
-    \caption{Job \texttt{production} hanya berjalan dari \texttt{main} dan menunggu persetujuan \textit{reviewer} pada environment. Push ke branch fitur melewatinya.}
+    \caption{Job \texttt{production} hanya berjalan dari \texttt{main} dan menunggu persetujuan \textit{reviewer} pada environment. Push ke branch fitur membuat job ini dilewati.}
     \label{fig:env-flow}
 \end{figure}
 
 \section{Urutan Langkah Deploy Laravel}
-Deploy aplikasi Laravel di server mengikuti urutan yang tidak boleh ditukar \cite{laravel-docs}. Aplikasi ditutup dulu dengan \texttt{php artisan down}, kode terbaru ditarik, dependensi produksi dipasang tanpa paket pengembangan, migrasi basis data dijalankan, cache dibangun ulang, pekerja antrean dimuat ulang, lalu aplikasi dibuka kembali dengan \texttt{php artisan up}. Baris \texttt{set -e} di awal skrip penting karena tanpa itu skrip akan terus berjalan walaupun satu perintah gagal, dan aplikasi bisa terbuka dalam keadaan rusak \cite{stauffer2023}.
+Deploy aplikasi Laravel di server mengikuti urutan yang tidak boleh ditukar \cite{laravel-docs}. Aplikasi ditutup dulu dengan \texttt{php artisan down}, kode terbaru ditarik, dependensi produksi dipasang tanpa paket pengembangan, migrasi basis data dijalankan, cache dibangun ulang, pekerja antrean dimuat ulang, lalu aplikasi dibuka kembali dengan \texttt{php artisan up}. Baris \texttt{set -e} di awal skrip membuat skrip berhenti begitu satu perintah gagal. Tanpa baris itu, skrip terus berjalan dan aplikasi bisa terbuka kembali dalam keadaan rusak \cite{stauffer2023}.
 
 \begin{figure}[H]
     \centering
@@ -348,14 +348,14 @@ Karena setiap job mulai dari mesin kosong, hasil pekerjaan satu job perlu diteru
     \draw[panah] (b) -- node[label, above, pos=0.5] {\texttt{upload-artifact}} (a);
     \draw[panah] (a) -- node[label, above, pos=0.5] {\texttt{download-artifact}} (t);
     \end{tikzpicture}
-    \caption{Direktori \texttt{vendor} hasil job \texttt{build} dipindahkan lewat artifact, lalu dipakai job \texttt{test}. Pemasangan dependensi cukup sekali.}
+    \caption{Direktori \texttt{vendor} hasil job \texttt{build} dipindahkan lewat artifact ke job \texttt{test}, sehingga dependensi cukup dipasang sekali.}
     \label{fig:artifact-flow}
 \end{figure}
 
 \clearpage
 
 \chapter[\tocboldsection{Hasil dan Pembahasan}]{Hasil dan Pembahasan}
-Pada bab ini saya menjelaskan pekerjaan untuk Tugas 2 sesuai instruksi di Classroom. Saya melanjutkan repository \texttt{evolusi-pl-535493} dari minggu sebelumnya, tidak membuat repository baru. Semua langkah saya verifikasi lewat GitHub Actions dan eksekusi lokal.
+Tugas 2 saya kerjakan sesuai instruksi di Classroom, dengan melanjutkan repository \texttt{evolusi-pl-535493} yang sama seperti minggu sebelumnya. Setiap langkah saya periksa lewat GitHub Actions dan eksekusi lokal.
 
 \section{Alat dan Bahan}
 Alat dan bahan yang digunakan:
@@ -367,7 +367,7 @@ Alat dan bahan yang digunakan:
 \end{itemize}
 
 \section{Penyiapan Lingkungan Lokal}
-Sebelum pengujian dijalankan, saya memastikan lingkungan lokal siap dengan PHP 8.5 dan Composer, dan versi PHP disamakan dengan versi yang dipakai runner di workflow agar hasil lokal dan hasil di GitHub Actions tidak berbeda. Pengujian dan pemeriksaan gaya kode dijalankan langsung di laptop:
+Sebelum menjalankan pengujian, saya menyiapkan PHP 8.5 dan Composer di laptop. Versi PHP saya samakan dengan versi runner di workflow supaya hasil lokal dan hasil di GitHub Actions tidak berbeda. Pengujian dan pemeriksaan gaya kode lalu dijalankan langsung di laptop:
 
 \begin{lstlisting}[style=bashstyle,caption={Verifikasi lokal.}]
 php -v
@@ -521,7 +521,7 @@ gh api repos/hafidzrizqullahprasetya/evolusi-pl-535493/environments/production \
     \label{fig:env}
 \end{figure}
 
-Ketika perubahan akhirnya masuk ke \texttt{main}, job \texttt{production} berhenti di status \textit{waiting} sampai saya menyetujuinya. Setelah disetujui, barulah job itu berjalan sampai selesai. Ini memperlihatkan bahwa tahap deploy benar-benar menunggu persetujuan manusia, bukan langsung jalan.
+Ketika perubahan akhirnya masuk ke \texttt{main}, job \texttt{production} berhenti di status \textit{waiting}. Job itu baru berjalan sampai selesai setelah saya menyetujuinya.
 
 \section{Skrip Deploy di Sisi Server}
 Langkah deploy di server saya tulis sebagai berkas \texttt{deploy.sh} di root repository. Isinya urutan perintah dari \texttt{artisan down} sampai \texttt{artisan up}, dengan \texttt{set -e} di baris awal agar skrip berhenti begitu ada perintah yang gagal.
@@ -594,22 +594,20 @@ gh run view 35199310754 --json jobs --jq '.jobs[] | "\(.name): \(.conclusion)"'
 \end{figure}
 
 \section{Kendala yang Ditemui}
-Ada beberapa kendala yang saya temui. Saat direktori \texttt{vendor} dipindahkan antar job lewat artefak, izin eksekusi berkas \texttt{vendor/bin/pint} hilang, sehingga job \texttt{test} sempat gagal dengan pesan \textit{Permission denied}. Saya memperbaikinya dengan memanggil \texttt{php vendor/bin/pint} alih-alih \texttt{./vendor/bin/pint}. Mengubah nama job juga sempat menghambat karena status check wajib pada branch protection tidak lagi cocok dengan nama job yang baru, jadi daftar check perlu disesuaikan dulu sebelum PR bisa digabungkan.
+Saya menemui dua kendala. Pertama, saat direktori \texttt{vendor} dipindahkan antar job lewat artefak, izin eksekusi berkas \texttt{vendor/bin/pint} hilang, sehingga job \texttt{test} sempat gagal dengan pesan \textit{Permission denied}. Saya memperbaikinya dengan memanggil \texttt{php vendor/bin/pint} alih-alih \texttt{./vendor/bin/pint}. Kedua, setelah nama job diubah, status check wajib pada branch protection tidak lagi cocok dengan nama job yang baru. PR baru bisa digabungkan setelah daftar check itu disesuaikan.
 
 \clearpage
 
 \chapter{Kesimpulan}
-Berdasarkan praktikum pada Pertemuan 3, dapat disimpulkan beberapa hal:
+Dari praktikum Pertemuan 3, saya menarik kesimpulan berikut:
 
 \begin{enumerate}
-    \item Workflow berhasil diperluas menjadi empat job (\texttt{build}, \texttt{test}, \texttt{staging}, \texttt{production}) yang dirangkai dengan \texttt{needs:}, dan direktori \texttt{vendor} dipindahkan antar job lewat artefak sehingga pemasangan dependensi cukup sekali.
-    \item Job \texttt{production} terbukti hanya berjalan dari branch \texttt{main}; push ke branch fitur membuat job itu terlewati sementara build, test, dan staging tetap berjalan.
-    \item Environment \texttt{production} dengan required reviewer membuat deploy menunggu persetujuan manusia, dan setelah disetujui barulah job berjalan sampai selesai.
+    \item Workflow sudah diperluas menjadi empat job (\texttt{build}, \texttt{test}, \texttt{staging}, \texttt{production}) yang dirangkai dengan \texttt{needs:}, dan direktori \texttt{vendor} dipindahkan antar job lewat artefak sehingga pemasangan dependensi cukup sekali.
+    \item Job \texttt{production} hanya berjalan dari branch \texttt{main}. Pada push ke branch fitur, job itu terlewati sementara build, test, dan staging tetap berjalan.
+    \item Environment \texttt{production} dengan required reviewer membuat deploy menunggu persetujuan manusia sebelum job berjalan sampai selesai.
     \item Ketujuh langkah deploy Laravel dituliskan pada \texttt{deploy.sh} dengan \texttt{set -e}, lalu ditampilkan sebagai \texttt{echo} di log job \texttt{production} sesuai urutan.
-    \item Pipeline terbukti berhenti ketika satu pengujian sengaja digagalkan: job \texttt{test} gagal dan job setelahnya terlewati, kemudian kembali hijau setelah kesalahan diperbaiki.
+    \item Ketika satu pengujian sengaja digagalkan, job \texttt{test} gagal dan job setelahnya terlewati. Pipeline kembali hijau setelah nilai pengujian dikembalikan.
 \end{enumerate}
-
-Dengan ini pipeline repository \texttt{evolusi-pl-535493} sudah berjalan dari pengujian sampai deploy, dengan penjaga branch dan persetujuan pada tahap produksi.
 
 \clearpage
 \addcontentsline{toc}{chapter}{Daftar Pustaka}
